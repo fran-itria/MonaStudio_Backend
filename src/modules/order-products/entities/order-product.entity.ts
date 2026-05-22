@@ -21,11 +21,15 @@ export class OrderProduct {
   @Column({ type: 'integer', default: 1 })
   quantity: number;
 
-  @ManyToOne(() => Order, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Order, (order) => order.orderProducts, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'orderId' })
   order: Order;
 
-  @ManyToOne(() => Product, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Product, (product) => product.orderProducts, {
+    onDelete: 'RESTRICT',
+  })
   @JoinColumn({ name: 'productId' })
   product: Product;
 }

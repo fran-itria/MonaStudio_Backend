@@ -18,7 +18,7 @@ export class OrderProduct {
   @PrimaryColumn({ type: 'uuid' })
   productId: string;
 
-  @Column({ type: 'integer', default: 1 })
+  @Column({ type: 'integer', default: 1, nullable: false })
   quantity: number;
 
   @ManyToOne(() => Order, (order) => order.orderProducts, {

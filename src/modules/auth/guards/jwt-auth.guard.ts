@@ -8,6 +8,20 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { AuthService } from '../auth.service';
 
+type JwtPayload = {
+  sub: string;
+  mail?: string;
+  iat?: number;
+  exp?: number;
+};
+
+type AuthenticatedRequest = Request & {
+  user: {
+    id: string;
+    mail: string;
+  };
+};
+
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
@@ -16,15 +30,15 @@ export class JwtAuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new UnauthorizedException('Token no provisto');
     }
 
-    let payload: { sub: string };
+    let payload: JwtPayload;
     try {
-      payload = await this.jwtService.verifyAsync<{ sub: string }>(token);
+      payload = await this.jwtService.verifyAsync<JwtPayload>(token);
     } catch {
       throw new UnauthorizedException('Token inválido');
     }
@@ -34,7 +48,7 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Token inválido');
     }
 
-    (request as Request & { user: { id: string; mail: string } }).user = {
+    request.user = {
       id: user.id,
       mail: user.mail,
     };

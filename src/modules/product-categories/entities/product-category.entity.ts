@@ -6,16 +6,16 @@ import { Category } from '../../categories/entities/category.entity';
 @Unique(['productId', 'categoryId'])
 export class ProductCategory {
   @PrimaryColumn({ type: 'uuid' })
-  productId: string;
+  productId!: string;
 
   @PrimaryColumn({ type: 'uuid' })
-  categoryId: string;
+  categoryId!: string;
 
   @ManyToOne(() => Product, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'productId' })
-  product: Product;
+  product!: Product;
 
   @ManyToOne(() => Category, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'categoryId' })
-  category: Category;
+  category!: Category;
 }

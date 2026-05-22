@@ -25,23 +25,23 @@ type OrderComment = {
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ type: 'numeric' })
-  amount: number;
+  amount!: number;
 
   @Column({ type: 'enum', enum: PaymentMethod })
-  paymentMethod: PaymentMethod;
+  paymentMethod!: PaymentMethod;
 
   @Column({ type: 'enum', enum: PaymentStatus, nullable: true })
-  paymentStatus: PaymentStatus | null;
+  paymentStatus!: PaymentStatus | null;
 
   @Column({ type: 'jsonb', nullable: true })
-  coment: OrderComment | null;
+  coment!: OrderComment | null;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  state: string | null;
+  state!: string | null;
 
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order)
-  orderProducts: OrderProduct[];
+  orderProducts!: OrderProduct[];
 }

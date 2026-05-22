@@ -13,23 +13,23 @@ import { Product } from '../../products/entities/product.entity';
 @Check(`"quantity" > 0`)
 export class OrderProduct {
   @PrimaryColumn({ type: 'uuid' })
-  orderId: string;
+  orderId!: string;
 
   @PrimaryColumn({ type: 'uuid' })
-  productId: string;
+  productId!: string;
 
   @Column({ type: 'integer', default: 1, nullable: false })
-  quantity: number;
+  quantity!: number;
 
   @ManyToOne(() => Order, (order) => order.orderProducts, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'orderId' })
-  order: Order;
+  order!: Order;
 
   @ManyToOne(() => Product, (product) => product.orderProducts, {
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'productId' })
-  product: Product;
+  product!: Product;
 }

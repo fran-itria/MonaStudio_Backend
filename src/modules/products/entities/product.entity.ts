@@ -14,37 +14,37 @@ type ProductIdReference = { id: string };
 @Entity('productos')
 export class Product {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ type: 'varchar', length: 150 })
-  nombre: string;
+  nombre!: string;
 
   @Column({ type: 'numeric' })
-  price: number;
+  price!: number;
 
   @Column({ type: 'text', array: true, nullable: true })
-  image: string[] | null;
+  image!: string[] | null;
 
   @Column({ type: 'integer' })
-  stock: number;
+  stock!: number;
 
   @Column({ type: 'numeric', nullable: true })
-  discountedPrice: number | null;
+  discountedPrice!: number | null;
 
   @Column({ type: 'text', nullable: true })
-  description: string | null;
+  description!: string | null;
 
   @Column({ type: 'boolean', default: true })
-  active: boolean;
+  active!: boolean;
 
   @Column({ type: 'jsonb', nullable: true })
-  relatedProducts: ProductIdReference[] | null;
+  relatedProducts!: ProductIdReference[] | null;
 
   @Column({ type: 'jsonb', nullable: true })
-  complementProducts: ProductIdReference[] | null;
+  complementProducts!: ProductIdReference[] | null;
 
   @Column({ type: 'text', array: true, nullable: true })
-  section: string[] | null;
+  section!: string[] | null;
 
   @ManyToMany(() => Category, (category) => category.products, {
     cascade: false,
@@ -54,8 +54,8 @@ export class Product {
     joinColumn: { name: 'productId', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'categoryId', referencedColumnName: 'id' },
   })
-  categories: Category[];
+  categories!: Category[];
 
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product)
-  orderProducts: OrderProduct[];
+  orderProducts!: OrderProduct[];
 }

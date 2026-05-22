@@ -3,6 +3,7 @@ import { ProductsController } from './products/products.controller';
 import { CategoriesController } from './categories/categories.controller';
 import { ProductCategoriesController } from './product-categories/product-categories.controller';
 import { OrdersController } from './orders/orders.controller';
+import { OrderProductsController } from './order-products/order-products.controller';
 
 describe('Basic entity controllers', () => {
   it('users controller responds with base message', () => {
@@ -32,6 +33,12 @@ describe('Basic entity controllers', () => {
   it('orders controller responds with base message', () => {
     expect(new OrdersController().getBase()).toEqual({
       message: 'Orders controller',
+    });
+  });
+
+  it('order products controller responds with base message', () => {
+    expect(new OrderProductsController().getBase()).toEqual({
+      message: 'Order products controller',
     });
   });
 });

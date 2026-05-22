@@ -1,16 +1,8 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-  Unique,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Order } from '../../orders/entities/order.entity';
 import { Product } from '../../products/entities/product.entity';
 
 @Entity('order_products')
-@Unique(['orderId', 'productId'])
 export class OrderProduct {
   @PrimaryColumn({ type: 'uuid' })
   orderId: string;

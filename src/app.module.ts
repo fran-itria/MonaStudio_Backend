@@ -7,9 +7,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ProductsModule } from './modules/products/products.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { ProductCategoriesModule } from './modules/product-categories/product-categories.module';
-import { databaseImports } from './config/database-imports';
+import { getDatabaseImports } from './config/database-imports';
 
 const isTestEnvironment = process.env.NODE_ENV === 'test';
+const databaseImports = getDatabaseImports(isTestEnvironment);
 
 const domainModules = isTestEnvironment
   ? []
@@ -26,7 +27,7 @@ const domainModules = isTestEnvironment
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ...(isTestEnvironment ? [] : databaseImports),
+    ...databaseImports,
     ...domainModules,
   ],
   controllers: [AppController],

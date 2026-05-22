@@ -9,23 +9,24 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { ProductCategoriesModule } from './modules/product-categories/product-categories.module';
 import { databaseImports } from './config/database-imports';
 
-const domainModules =
-  process.env.NODE_ENV === 'test'
-    ? []
-    : [
-        UsersModule,
-        AuthModule,
-        ProductsModule,
-        CategoriesModule,
-        ProductCategoriesModule,
-      ];
+const isTestEnvironment = process.env.NODE_ENV === 'test';
+
+const domainModules = isTestEnvironment
+  ? []
+  : [
+      UsersModule,
+      AuthModule,
+      ProductsModule,
+      CategoriesModule,
+      ProductCategoriesModule,
+    ];
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ...databaseImports,
+    ...(isTestEnvironment ? [] : databaseImports),
     ...domainModules,
   ],
   controllers: [AppController],

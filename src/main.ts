@@ -13,7 +13,7 @@ export function configureApplication(app: INestApplication) {
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
 
   SwaggerModule.setup('api', app, swaggerDocument, {
-    jsonDocumentUrl: 'api-json',
+    jsonDocumentUrl: '/api-json',
   });
 
   app.useGlobalPipes(

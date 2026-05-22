@@ -7,6 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "docs:compodoc": "npx @compodoc/compodoc -p tsconfig.json -d documentation",
+    "docs:compodoc:serve": "npx @compodoc/compodoc -p tsconfig.json -d documentation -s",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -26,6 +28,7 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.4.4",
     "@nestjs/typeorm": "^11.0.1",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
@@ -36,6 +39,7 @@
     "pg": "^8.21.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1",
     "typeorm": "^1.0.0"
   },
   "devDependencies": {

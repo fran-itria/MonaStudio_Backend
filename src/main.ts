@@ -6,7 +6,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 export function configureApplication(app: INestApplication) {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('MonaStudio API')
-    .setDescription('Automatic API documentation')
+    .setDescription(
+      'API for managing MonaStudio products, services, and courses',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();

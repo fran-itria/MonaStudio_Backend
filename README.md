@@ -28,7 +28,7 @@ npm install
 npm run start:dev
 ```
 
-## Documentación automática
+## Automatic documentation
 
 ### Swagger (NestJS)
 
@@ -37,13 +37,13 @@ npm run start:dev
 
 ### Compodoc
 
-Generar documentación estática:
+Generate static documentation:
 
 ```bash
 npm run docs:compodoc
 ```
 
-Generar y servir documentación:
+Generate and serve documentation:
 
 ```bash
 npm run docs:compodoc:serve

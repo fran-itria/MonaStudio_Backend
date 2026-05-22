@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { OrderProduct } from '../../order-products/entities/order-product.entity';
 
 export enum PaymentMethod {
   CASH = 'cash',
@@ -40,4 +41,7 @@ export class Order {
 
   @Column({ type: 'varchar', length: 100, nullable: true })
   state: string | null;
+
+  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order)
+  orderProducts: OrderProduct[];
 }

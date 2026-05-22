@@ -26,7 +26,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         return {
           secret: jwtSecret,
           signOptions: {
-            expiresIn: jwtExpiresIn as StringValue,
+            expiresIn: jwtExpiresIn as StringValue | undefined,
           },
         };
       },
@@ -36,4 +36,4 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   providers: [AuthService, LocalStrategy, JwtStrategy],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }

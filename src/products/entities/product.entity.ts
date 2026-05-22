@@ -1,0 +1,64 @@
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Category } from '../../categories/entities/category.entity';
+import { ProductCategory } from '../../product-categories/entities/product-category.entity';
+
+type ProductReference = { id: string };
+
+@Entity('productos')
+export class Product {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'varchar', length: 150 })
+  nombre: string;
+
+  @Column({ type: 'numeric' })
+  price: number;
+
+  @Column({ type: 'text', array: true, nullable: true })
+  image: string[] | null;
+
+  @Column({ type: 'integer' })
+  stock: number;
+
+  @Column({ type: 'numeric', nullable: true })
+  discountedPrice: number | null;
+
+  @Column({ type: 'text', nullable: true })
+  description: string | null;
+
+  @Column({ type: 'boolean', default: true })
+  active: boolean;
+
+  @Column({ type: 'jsonb', nullable: true })
+  relatedProducts: ProductReference[] | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  complementProducts: ProductReference[] | null;
+
+  @Column({ type: 'text', array: true, nullable: true })
+  section: string[] | null;
+
+  @ManyToMany(() => Category, (category) => category.products, {
+    cascade: false,
+  })
+  @JoinTable({
+    name: 'product_categories',
+    joinColumn: { name: 'productId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'categoryId', referencedColumnName: 'id' },
+  })
+  categories: Category[];
+
+  @OneToMany(
+    () => ProductCategory,
+    (productCategory) => productCategory.product,
+  )
+  productCategories: ProductCategory[];
+}

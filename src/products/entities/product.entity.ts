@@ -3,13 +3,11 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
-import { ProductCategory } from '../../product-categories/entities/product-category.entity';
 
-type ProductReference = { id: string };
+type ProductIdReference = { id: string };
 
 @Entity('productos')
 export class Product {
@@ -38,10 +36,10 @@ export class Product {
   active: boolean;
 
   @Column({ type: 'jsonb', nullable: true })
-  relatedProducts: ProductReference[] | null;
+  relatedProducts: ProductIdReference[] | null;
 
   @Column({ type: 'jsonb', nullable: true })
-  complementProducts: ProductReference[] | null;
+  complementProducts: ProductIdReference[] | null;
 
   @Column({ type: 'text', array: true, nullable: true })
   section: string[] | null;
@@ -55,10 +53,4 @@ export class Product {
     inverseJoinColumn: { name: 'categoryId', referencedColumnName: 'id' },
   })
   categories: Category[];
-
-  @OneToMany(
-    () => ProductCategory,
-    (productCategory) => productCategory.product,
-  )
-  productCategories: ProductCategory[];
 }

@@ -1,5 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
+import { hash } from 'bcryptjs';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 
@@ -41,11 +42,13 @@ describe('AuthService', () => {
   });
 
   it('should validate user credentials and remove password field', async () => {
+    const passwordHash = await hash('123456', 10);
+
     usersService.findByMail.mockResolvedValue({
       id: 'u-1',
       nombre: 'Ana',
       apellido: 'Perez',
-      contrasena: '123456',
+      contrasena: passwordHash,
       mail: 'ana@mail.com',
     });
 
@@ -65,8 +68,6 @@ describe('AuthService', () => {
   it('should create a jwt token with id and mail', () => {
     const result = authService.login({
       id: 'u-1',
-      nombre: 'Ana',
-      apellido: 'Perez',
       mail: 'ana@mail.com',
     });
 
@@ -77,5 +78,20 @@ describe('AuthService', () => {
     expect(result).toEqual({
       access_token: 'mock-token',
     });
+  });
+
+  it('should delegate findUserById to usersService', async () => {
+    usersService.findById.mockResolvedValue({
+      id: 'u-2',
+      nombre: 'Maria',
+      apellido: 'Lopez',
+      contrasena: '$2b$10$mocked',
+      mail: 'maria@mail.com',
+    });
+
+    const user = await authService.findUserById('u-2');
+
+    expect(usersService.findById.mock.calls[0][0]).toBe('u-2');
+    expect(user?.id).toBe('u-2');
   });
 });

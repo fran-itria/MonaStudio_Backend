@@ -27,3 +27,24 @@ npm install
 ```bash
 npm run start:dev
 ```
+
+## Automatic documentation
+
+### Swagger (NestJS)
+
+- UI: `http://localhost:3000/api`
+- OpenAPI JSON: `http://localhost:3000/api-json`
+
+### Compodoc
+
+Generate static documentation:
+
+```bash
+npm run docs:compodoc
+```
+
+Generate and serve documentation:
+
+```bash
+npm run docs:compodoc:serve
+```

@@ -63,7 +63,7 @@ export class JwtAuthGuard implements CanActivate {
       return undefined;
     }
 
-    const [type, token] = authHeader.split(' ');
+    const [type, token] = authHeader.trim().split(/\s+/, 2);
     if (!type || !token) {
       return undefined;
     }

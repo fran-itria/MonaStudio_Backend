@@ -12,7 +12,9 @@ export function configureApplication(app: INestApplication) {
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
 
-  SwaggerModule.setup('api', app, swaggerDocument);
+  SwaggerModule.setup('api', app, swaggerDocument, {
+    jsonDocumentUrl: 'api-json',
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({

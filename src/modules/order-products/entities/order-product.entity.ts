@@ -1,8 +1,16 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  Check,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 import { Order } from '../../orders/entities/order.entity';
 import { Product } from '../../products/entities/product.entity';
 
 @Entity('order_products')
+@Check(`"quantity" > 0`)
 export class OrderProduct {
   @PrimaryColumn({ type: 'uuid' })
   orderId: string;
@@ -17,7 +25,7 @@ export class OrderProduct {
   @JoinColumn({ name: 'orderId' })
   order: Order;
 
-  @ManyToOne(() => Product, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Product, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'productId' })
   product: Product;
 }

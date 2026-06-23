@@ -35,4 +35,20 @@ export class ProductsService {
             }
         }
     }
+
+    async bulkCreate(productsData: CreateProductDto[]): Promise<Product[] | void> {
+        try {
+            return await this.dataSource.transaction(async (manager) => {
+                const products = productsData.map(productData => manager.create(Product, { ...productData, categories: productData.categories.map(id => ({ id })) }));
+                return await manager.save(products);
+            })
+        }
+        catch (error) {
+            if (error instanceof QueryFailedError) {
+                if (error.message.includes('duplicate key value') && error.driverError.detail.includes('nombre')) {
+                    throw new BadRequestException('Uno o más productos ya están registrados.');
+                }
+            }
+        }
+    }
 }

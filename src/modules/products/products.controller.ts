@@ -35,4 +35,25 @@ export class ProductsController {
     const product = await this.productsService.create(productData);
     return res.status(201).json(product);
   }
+
+  @ApiBearerAuth()
+  @ApiBody({
+    description: 'Crea varios productos al mismo tiempo',
+    schema: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/CreateProductDto',
+      },
+    }
+  })
+  @ApiResponse({ status: 201, description: 'Producto creado exitosamente' })
+  @ApiResponse({ status: 400, description: 'Mal enviado los datos de creación' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  @UseGuards(JwtAuthGuard)
+  @Post('bulk')
+  async bulkCreate(@Body() productsData: CreateProductDto[], @Res() res: Response) {
+    const products = await this.productsService.bulkCreate(productsData);
+    return res.status(201).json(products);
+  }
 }

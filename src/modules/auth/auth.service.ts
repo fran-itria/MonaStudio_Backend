@@ -25,8 +25,7 @@ export class AuthService {
       return null;
     }
 
-    // const isValidPassword = await compare(contrasena, user.contrasena);
-    const isValidPassword = contrasena == user.contrasena;
+    const isValidPassword = await compare(contrasena, user.contrasena);
 
     if (!isValidPassword) {
       return null;

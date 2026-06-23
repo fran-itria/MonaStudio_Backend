@@ -11,7 +11,7 @@ export class UsersController {
 
   @ApiBearerAuth()
   @ApiBody({
-    description: 'Create a new user',
+    description: 'Crear nuevo usuario',
     schema: {
       type: 'object',
       properties: {

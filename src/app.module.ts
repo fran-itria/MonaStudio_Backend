@@ -15,14 +15,14 @@ const domainModules =
   process.env.NODE_ENV === 'test'
     ? []
     : [
-        UsersModule,
-        AuthModule,
-        ProductsModule,
-        CategoriesModule,
-        ProductCategoriesModule,
-        OrdersModule,
-        OrderProductsModule,
-      ];
+      UsersModule,
+      AuthModule,
+      ProductsModule,
+      CategoriesModule,
+      ProductCategoriesModule,
+      OrdersModule,
+      OrderProductsModule,
+    ];
 
 @Module({
   imports: [
@@ -31,8 +31,10 @@ const domainModules =
     }),
     ...databaseImports,
     ...domainModules,
+    UsersModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

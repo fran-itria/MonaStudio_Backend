@@ -2,14 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import type { StringValue } from 'ms';
-import { UsersModule } from '../users/users.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../users/entities/user.entity';
 
 @Module({
   imports: [
-    UsersModule,
+    TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
@@ -18,7 +19,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
           throw new Error('JWT_SECRET environment variable is required');
         }
 
-        const jwtExpiresIn = configService.get<string>('JWT_EXPIRES_IN', '1d');
+        const jwtExpiresIn = configService.get<string>('JWT_EXPIRES_IN');
 
         return {
           secret: jwtSecret,
@@ -31,6 +32,6 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtAuthGuard],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule, JwtAuthGuard],
 })
-export class AuthModule {}
+export class AuthModule { }

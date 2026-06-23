@@ -27,7 +27,7 @@ export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly authService: AuthService,
-  ) {}
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
@@ -46,6 +46,10 @@ export class JwtAuthGuard implements CanActivate {
     const user = await this.authService.findUserById(payload.sub);
     if (!user) {
       throw new UnauthorizedException('Token inválido');
+    }
+
+    if (!user.isAdmin) {
+      throw new UnauthorizedException('Acceso denegado: se requieren privilegios de administrador');
     }
 
     request.user = {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcryptjs';
 import { User } from '../users/entities/user.entity';
@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 type AuthenticatedUser = Omit<User, 'contrasena'>;
-type JwtUserPayload = Pick<User, 'id' | 'mail'>;
+type JwtUserPayload = Pick<User, 'id' | 'mail' | 'isAdmin'>;
 
 @Injectable()
 export class AuthService {
@@ -22,13 +22,13 @@ export class AuthService {
   ): Promise<AuthenticatedUser | null> {
     const user = await this.userRepository.findOne({ where: { mail } });
     if (!user) {
-      return null;
+      throw new UnauthorizedException('Usuario no encontrado');
     }
 
     const isValidPassword = await compare(contrasena, user.contrasena);
 
     if (!isValidPassword) {
-      return null;
+      throw new UnauthorizedException('Contraseña incorrecta');
     }
 
     return {
@@ -36,6 +36,7 @@ export class AuthService {
       nombre: user.nombre,
       apellido: user.apellido,
       mail: user.mail,
+      isAdmin: user.isAdmin
     };
   }
 

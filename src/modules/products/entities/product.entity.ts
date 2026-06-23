@@ -16,7 +16,7 @@ export class Product {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'varchar', length: 150 })
+  @Column({ type: 'varchar', length: 150, unique: true })
   nombre!: string;
 
   @Column({ type: 'numeric' })
@@ -31,8 +31,8 @@ export class Product {
   @Column({ type: 'numeric', nullable: true })
   discountedPrice!: number | null;
 
-  @Column({ type: 'text', nullable: true })
-  description!: string | null;
+  @Column({ type: 'text', nullable: false })
+  description!: string;
 
   @Column({ type: 'boolean', default: true })
   active!: boolean;

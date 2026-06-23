@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { UserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 
@@ -8,6 +8,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService
   ) { }
+
   @ApiBearerAuth()
   @ApiBody({
     description: 'Create a new user',
@@ -26,5 +27,12 @@ export class UsersController {
   @Post()
   async create(@Body() createUserDto: UserDto): Promise<UserDto | void> {
     return await this.usersService.create(createUserDto);
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({ status: 200, description: 'Lista de usuarios obtenida con éxito.', type: [UserDto] })
+  @Get()
+  async findAll(): Promise<UserDto[]> {
+    return await this.usersService.findAll();
   }
 }

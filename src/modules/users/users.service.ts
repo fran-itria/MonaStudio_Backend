@@ -11,6 +11,10 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
   ) { }
 
+  findAll(): Promise<User[]> {
+    return this.usersRepository.find();
+  }
+
   findByMail(mail: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { mail } });
   }

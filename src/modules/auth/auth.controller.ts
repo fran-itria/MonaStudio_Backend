@@ -11,6 +11,7 @@ import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LoginDto } from './dto/login.dto';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 
 type AuthenticatedRequest = Request & {
   user: {
@@ -21,8 +22,13 @@ type AuthenticatedRequest = Request & {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
+  @ApiBearerAuth()
+  @ApiBody({
+    description: 'Inicia sesión en la aplicación',
+    type: LoginDto,
+  })
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     const user = await this.authService.validateUser(

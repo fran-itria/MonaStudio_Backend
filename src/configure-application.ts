@@ -17,7 +17,7 @@ export function configureApplication(app: INestApplication): void {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('MonaStudio API')
     .setDescription(
-      'API for managing MonaStudio products, services, and courses',
+      'API para la gestión de la web de MonaStudio',
     )
     .setVersion('1.0')
     .addBearerAuth()

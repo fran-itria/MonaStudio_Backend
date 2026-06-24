@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Patch, Post, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product-dto';
 import { UpdateProductDto } from './dto/update-product-dto';
 import type { Response } from 'express';
@@ -13,11 +13,38 @@ export class ProductsController {
   ) { }
 
   @ApiBearerAuth()
+  @ApiQuery({
+    name: 'category',
+    description: 'Nombre de la categoría para filtrar los productos',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'page',
+    description: 'Número de página para la paginación (por defecto: 1)',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'limit',
+    description: 'Cantidad de productos por página para la paginación (por defecto: 20)',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'orderBy',
+    description: 'Campo por el cual ordenar los productos (por defecto: createdAt)',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'direction',
+    description: 'Dirección de ordenamiento (ASC o DESC, por defecto: DESC)',
+    required: false,
+  })
+  @ApiResponse({ status: 200, description: 'Lista de productos obtenida exitosamente' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   @ApiResponse({ status: 200, description: 'Lista de productos obtenida exitosamente' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   @Get()
-  async findAll(@Res() res: Response) {
-    const products = await this.productsService.findAll();
+  async findAll(@Res() res: Response, @Query('category') categoryName: string, @Query('page') page = 1, @Query('limit') limit = 20, @Query('orderBy') orderBy = 'createdAt', @Query('direction') direction = 'DESC') {
+    const products = await this.productsService.findAll(categoryName, page, limit, orderBy, direction);
     return res.status(200).json(products);
   }
 

@@ -13,12 +13,24 @@ export class ProductsService {
         private readonly dataSource: DataSource
     ) { }
 
-    async findAll(): Promise<Product[]> {
-        return await this.productRepository.find({
-            relations: {
-                categories: true
-            }
-        });
+    async findAll(
+        categoryName: string,
+        page = 1,
+        limit = 20,
+        orderBy = 'createdAt',
+        direction = 'DESC'
+    ): Promise<Product[]> {
+        const query = this.productRepository
+            .createQueryBuilder('product')
+            .leftJoinAndSelect('product.categories', 'category')
+
+        categoryName && query.where('category.name = :categoryName', { categoryName })
+
+        query.orderBy(`product.${orderBy}`, direction as 'ASC' | 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit)
+
+        return query.getMany()
     }
 
     async create(productData: CreateProductDto): Promise<Product | void> {

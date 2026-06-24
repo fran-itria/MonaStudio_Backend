@@ -16,7 +16,7 @@ export class ProductsController {
   @ApiQuery({
     name: 'category',
     description: 'Nombre de la categoría para filtrar los productos',
-    required: false,
+    required: false
   })
   @ApiQuery({
     name: 'page',
@@ -38,8 +38,6 @@ export class ProductsController {
     description: 'Dirección de ordenamiento (ASC o DESC, por defecto: DESC)',
     required: false,
   })
-  @ApiResponse({ status: 200, description: 'Lista de productos obtenida exitosamente' })
-  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   @ApiResponse({ status: 200, description: 'Lista de productos obtenida exitosamente' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   @Get()

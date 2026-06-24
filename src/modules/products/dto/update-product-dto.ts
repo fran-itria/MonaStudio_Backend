@@ -1,18 +1,23 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
-export class CreateProductDto {
-    @ApiProperty({ description: 'Nombre del producto', example: 'Camiseta' })
+export class UpdateProductDto {
+    @ApiProperty({ description: 'ID del producto a actualizar', example: 'uuid-producto-1' })
     @IsNotEmpty()
     @IsString()
-    nombre!: string
+    id!: string
 
-    @ApiProperty({ description: 'Precio del producto', example: 7500 })
-    @IsNotEmpty()
+    @ApiPropertyOptional({ description: 'Nombre del producto', example: 'Camiseta' })
+    @IsOptional()
+    @IsString()
+    nombre?: string
+
+    @ApiPropertyOptional({ description: 'Precio del producto', example: 7500 })
+    @IsOptional()
     @IsNumber()
-    price!: number
+    price?: number
 
-    @ApiProperty({ description: 'Imagens del producto', example: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'] })
+    @ApiPropertyOptional({ description: 'Imagens del producto', example: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'] })
     @IsOptional()
     @IsArray()
     image?: string[]
@@ -30,7 +35,7 @@ export class CreateProductDto {
     @ApiPropertyOptional({ description: 'Descripción del producto', example: 'Camiseta de algodón de alta calidad' })
     @IsOptional()
     @IsString()
-    description!: string
+    description?: string
 
     @ApiPropertyOptional({ description: 'Variedades del producto', example: [{ name: 'Rojo', stock: 5 }, { name: 'Azul', stock: 3 }] })
     @IsOptional()
@@ -52,8 +57,8 @@ export class CreateProductDto {
     @IsArray()
     section?: string[]
 
-    @ApiProperty({ description: 'Categorías del producto', example: ['uuid-categoria-1', 'uuid-categoria-2'] })
-    @IsNotEmpty()
+    @ApiPropertyOptional({ description: 'Categorías del producto', example: ['uuid-categoria-1', 'uuid-categoria-2'] })
+    @IsOptional()
     @IsArray()
-    categories!: string[]
+    categories?: string[]
 }

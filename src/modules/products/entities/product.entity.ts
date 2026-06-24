@@ -1,10 +1,12 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
 import { OrderProduct } from '../../order-products/entities/order-product.entity';
@@ -16,6 +18,16 @@ export class Product {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @CreateDateColumn({
+    type: 'timestamp',
+  })
+  createdAt!: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+  })
+  updatedAt!: Date;
+
   @Column({ type: 'varchar', length: 150, unique: true })
   nombre!: string;
 
@@ -25,17 +37,20 @@ export class Product {
   @Column({ type: 'text', array: true, nullable: true })
   image!: string[] | null;
 
-  @Column({ type: 'integer' })
-  stock!: number;
+  @Column({ type: 'integer', nullable: true })
+  stock?: number;
 
   @Column({ type: 'numeric', nullable: true })
   discountedPrice!: number | null;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true })
   description!: string;
 
   @Column({ type: 'boolean', default: true })
   active!: boolean;
+
+  @Column({ type: 'jsonb', nullable: true })
+  varities?: { name: string, stock: number }[] | null;
 
   @Column({ type: 'jsonb', nullable: true })
   relatedProducts!: ProductIdReference[] | null;

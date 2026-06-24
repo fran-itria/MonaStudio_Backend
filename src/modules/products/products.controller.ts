@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product-dto';
+import { UpdateProductDto } from './dto/update-product-dto';
 import type { Response } from 'express';
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -39,12 +40,8 @@ export class ProductsController {
   @ApiBearerAuth()
   @ApiBody({
     description: 'Crea varios productos al mismo tiempo',
-    schema: {
-      type: 'array',
-      items: {
-        $ref: '#/components/schemas/CreateProductDto',
-      },
-    }
+    type: CreateProductDto,
+    isArray: true
   })
   @ApiResponse({ status: 201, description: 'Producto creado exitosamente' })
   @ApiResponse({ status: 400, description: 'Mal enviado los datos de creación' })
@@ -54,6 +51,39 @@ export class ProductsController {
   @Post('bulk')
   async bulkCreate(@Body() productsData: CreateProductDto[], @Res() res: Response) {
     const products = await this.productsService.bulkCreate(productsData);
+    return res.status(201).json(products);
+  }
+
+  @ApiBearerAuth()
+  @ApiBody({
+    description: 'Actualiza producto',
+    type: UpdateProductDto
+  })
+  @ApiResponse({ status: 201, description: 'Producto actualizado exitosamente' })
+  @ApiResponse({ status: 400, description: 'Mal enviado los datos de actualización' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  @UseGuards(JwtAuthGuard)
+  @Patch()
+  async update(@Body() productsData: UpdateProductDto, @Res() res: Response) {
+    const products = await this.productsService.update(productsData);
+    return res.status(201).json(products);
+  }
+
+  @ApiBearerAuth()
+  @ApiBody({
+    description: 'Actualiza varios productos al mismo tiempo',
+    type: UpdateProductDto,
+    isArray: true
+  })
+  @ApiResponse({ status: 201, description: 'Producto actualizado exitosamente' })
+  @ApiResponse({ status: 400, description: 'Mal enviado los datos de actualización' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  @UseGuards(JwtAuthGuard)
+  @Patch('bulk')
+  async bulkUpdate(@Body() productsData: UpdateProductDto[], @Res() res: Response) {
+    const products = await this.productsService.bulkUpdate(productsData);
     return res.status(201).json(products);
   }
 }

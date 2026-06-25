@@ -10,6 +10,8 @@ import { ProductCategoriesModule } from './modules/product-categories/product-ca
 import { OrdersModule } from './modules/orders/orders.module';
 import { OrderProductsModule } from './modules/order-products/order-products.module';
 import { databaseImports } from './config/database-imports';
+import { LessonsModule } from './modules/lesson/lessons.module';
+import { CoursesModule } from './modules/courses/course.module';
 
 const domainModules =
   process.env.NODE_ENV === 'test'
@@ -22,6 +24,8 @@ const domainModules =
       ProductCategoriesModule,
       OrdersModule,
       OrderProductsModule,
+      LessonsModule,
+      CoursesModule
     ];
 
 @Module({

@@ -18,15 +18,20 @@ export class ProductsService {
         page = 1,
         limit = 20,
         orderBy = 'createdAt',
-        direction = 'DESC'
+        direction = 'DESC',
+        active = 'inCatalog'
     ): Promise<Product[]> {
+        const allowedFields = ['nombre', 'price', 'stock', 'discountedPrice', 'createdAt'];
         const query = this.productRepository
             .createQueryBuilder('product')
             .leftJoinAndSelect('product.categories', 'category')
 
         categoryName && query.where('category.name = :categoryName', { categoryName })
-
-        query.orderBy(`product.${orderBy}`, direction as 'ASC' | 'DESC')
+        active && query.andWhere('product.active = :active', { active: active === 'inCatalog' ? true : false })
+        if (orderBy && allowedFields.includes(orderBy)) {
+            query.orderBy(`product.${orderBy}`, direction as 'ASC' | 'DESC')
+        } else throw new BadRequestException(`El campo '${orderBy}' no es válido para ordenar.`);
+        query.addOrderBy('product.nombre', 'ASC')
             .skip((page - 1) * limit)
             .take(limit)
 

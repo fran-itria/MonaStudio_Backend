@@ -5,6 +5,7 @@ import { UpdateProductDto } from './dto/update-product-dto';
 import type { Response } from 'express';
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { FilterEnum } from './enums/filterEnum';
 
 @Controller('products')
 export class ProductsController {
@@ -14,35 +15,56 @@ export class ProductsController {
 
   @ApiBearerAuth()
   @ApiQuery({
+    name: 'active',
+    description: 'Estado del producto para filtrar (inCatalog o outCatalog)',
+    required: false,
+    default: 'inCatalog',
+    enum: FilterEnum.ACTIVE
+  })
+  @ApiQuery({
     name: 'category',
     description: 'Nombre de la categoría para filtrar los productos',
     required: false
   })
   @ApiQuery({
     name: 'page',
-    description: 'Número de página para la paginación (por defecto: 1)',
+    description: 'Número de página para la paginación',
     required: false,
+    default: 1
   })
   @ApiQuery({
     name: 'limit',
     description: 'Cantidad de productos por página para la paginación (por defecto: 20)',
     required: false,
+    default: 20
   })
   @ApiQuery({
     name: 'orderBy',
-    description: 'Campo por el cual ordenar los productos (por defecto: createdAt)',
+    description: 'Campo por el cual ordenar los productos',
     required: false,
+    enum: FilterEnum.ORDER_BY,
+    default: 'createdAt'
   })
   @ApiQuery({
     name: 'direction',
-    description: 'Dirección de ordenamiento (ASC o DESC, por defecto: DESC)',
+    description: 'Dirección de ordenamiento',
     required: false,
+    enum: FilterEnum.DIRECTION,
+    enumName: 'DESC'
   })
   @ApiResponse({ status: 200, description: 'Lista de productos obtenida exitosamente' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   @Get()
-  async findAll(@Res() res: Response, @Query('category') categoryName: string, @Query('page') page = 1, @Query('limit') limit = 20, @Query('orderBy') orderBy = 'createdAt', @Query('direction') direction = 'DESC') {
-    const products = await this.productsService.findAll(categoryName, page, limit, orderBy, direction);
+  async findAll(
+    @Res() res: Response,
+    @Query('category') categoryName: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 20,
+    @Query('orderBy') orderBy = 'createdAt',
+    @Query('direction') direction = 'DESC',
+    @Query('active') active = 'inCatalog'
+  ) {
+    const products = await this.productsService.findAll(categoryName, page, limit, orderBy, direction, active);
     return res.status(200).json(products);
   }
 

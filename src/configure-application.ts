@@ -3,6 +3,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import hemlet from 'helmet';
 
 export function configureApplication(app: INestApplication): void {
+  app.enableCors({
+    origin: [
+      process.env.LOCALHOST_ORIGIN,
+      process.env.PUBLIC_ORIGIN
+    ],
+    credentials: true
+  })
   app.use(hemlet())
 
   const prefix = 'api'

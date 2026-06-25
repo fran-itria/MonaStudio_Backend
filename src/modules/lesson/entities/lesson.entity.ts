@@ -2,7 +2,7 @@ import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Course } from "../../courses/entities/course.entity";
 
 
-@Entity('lesson')
+@Entity('lessons')
 export class Lesson {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

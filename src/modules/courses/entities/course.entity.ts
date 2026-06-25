@@ -1,10 +1,21 @@
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Lesson } from "../../lesson/entities/lesson.entity";
+import { ModalityEnum } from "../enums/modality.enums";
 
 @Entity('courses')
 export class Course {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
+
+    @CreateDateColumn({
+        type: 'timestamp',
+    })
+    createdAt!: Date;
+
+    @UpdateDateColumn({
+        type: 'timestamp',
+    })
+    updatedAt!: Date;
 
     @Column({ type: 'boolean', default: true })
     isActive!: boolean;
@@ -12,13 +23,13 @@ export class Course {
     @Column({ type: 'varchar', length: 100 })
     name!: string;
 
-    @Column({ type: 'jsonb', length: 255 })
+    @Column({ type: 'jsonb' })
     description!: string[];
 
     @Column({ type: 'varchar', length: 255 })
     duration!: string;
 
-    @Column({ enum: ['online', 'presencial'], type: 'varchar', length: 255 })
+    @Column({ enum: ModalityEnum, type: 'varchar', length: 255 })
     modality!: string;
 
     @Column({ type: 'varchar', length: 255, nullable: true })
@@ -42,10 +53,13 @@ export class Course {
     @Column({ type: 'varchar', length: 255, nullable: true })
     objective?: string;
 
-    @Column({ type: 'varchar', length: 255, nullable: true })
+    @Column({ type: 'jsonb', nullable: true })
     include?: string[]
 
-    @Column({ type: 'varchar', length: 255 })
+    @Column({ type: 'jsonb', nullable: true })
+    requirements?: string[]
+
+    @Column({ type: 'jsonb' })
     conditionsOfCourse!: string[]
 
     @Column({ type: 'varchar', length: 255 })

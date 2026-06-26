@@ -1,11 +1,13 @@
-import { Body, Controller, Get, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product-dto';
 import { UpdateProductDto } from './dto/update-product-dto';
 import type { Response } from 'express';
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FilterEnum } from './enums/filterEnum';
+import * as typeorm from 'typeorm';
+import { Product } from './entities/product.entity';
 
 @Controller('products')
 export class ProductsController {
@@ -66,6 +68,20 @@ export class ProductsController {
   ) {
     const products = await this.productsService.findAll(categoryName, page, limit, orderBy, direction, active);
     return res.status(200).json(products);
+  }
+
+  @ApiBearerAuth()
+  @ApiParam({
+    name: 'id',
+    description: 'Id del producto a buscar',
+    required: true
+  })
+  @ApiResponse({ status: 200, description: 'Producto encontrado' })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado' })
+  @Get(':id')
+  async findOneProduct(@Param() id: typeorm.FindOptionsWhere<Product>, @Res() res: Response) {
+    const product = await this.productsService.findById(id)
+    return res.status(200).json(product)
   }
 
   @ApiBearerAuth()

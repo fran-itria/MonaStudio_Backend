@@ -2,8 +2,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entities/product.entity";
 import { Repository } from "typeorm/repository/Repository.js";
 import { CreateProductDto } from "./dto/create-product-dto";
-import { DataSource, QueryFailedError } from "typeorm";
-import { BadRequestException } from "@nestjs/common";
+import { DataSource, FindOptionsWhere, QueryFailedError } from "typeorm";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { UpdateProductDto } from "./dto/update-product-dto";
 
 export class ProductsService {
@@ -36,6 +36,12 @@ export class ProductsService {
             .take(limit)
 
         return query.getMany()
+    }
+
+    async findById(id: FindOptionsWhere<Product>) {
+        const product = await this.productRepository.findOneBy(id)
+        if (!product) throw new NotFoundException()
+        return product
     }
 
     async create(productData: CreateProductDto): Promise<Product | void> {

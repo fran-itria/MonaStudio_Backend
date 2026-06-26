@@ -41,6 +41,9 @@ dependencies:
   helmet:
     specifier: ^8.2.0
     version: 8.2.0
+  mercadopago:
+    specifier: ^3.1.0
+    version: 3.1.0
   passport:
     specifier: ^0.7.0
     version: 0.7.0
@@ -4487,6 +4490,11 @@ packages:
     dependencies:
       fs-monkey: 1.1.0
     dev: true
+
+  /mercadopago@3.1.0:
+    resolution: {integrity: sha512-3VB8AFpE8eZgm67e22kVbR19k9JC/1j66voLSh7m9tPvkASuRKNH2Y7yb793rO+fIpMtvl+wBj27UY4jIItWYA==}
+    engines: {node: '>=18'}
+    dev: false
 
   /merge-descriptors@2.0.0:
     resolution: {integrity: sha512-Snk314V5ayFLhp3fkUREub6WtjBfPdCPY1Ln8/8munuLuiYhsABgBVWsozAG+MWMbVEvcdcpbi9R7ww22l9Q3g==}

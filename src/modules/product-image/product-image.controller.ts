@@ -3,6 +3,7 @@ import { ProductImageService } from './product-image.service';
 import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { CreateImagesDto } from './dto/create-image.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('product-image')
 export class ProductImageController {
@@ -14,7 +15,7 @@ export class ProductImageController {
     type: CreateImagesDto,
     isArray: true
   })
-  @UseGuards()
+  @UseGuards(JwtAuthGuard)
   @Post()
   async bulkCreate(@Res() res: Response, @Body() body: { images: CreateImagesDto[] }) {
     const images = await this.productImageService.bulkCreate(body.images)

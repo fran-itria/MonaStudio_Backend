@@ -3,9 +3,10 @@ import { ProductImageService } from './product-image.service';
 import { ProductImageController } from './product-image.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductImage } from './entities/product-image.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductImage])],
+  imports: [TypeOrmModule.forFeature([ProductImage]), AuthModule],
   controllers: [ProductImageController],
   providers: [ProductImageService],
 })

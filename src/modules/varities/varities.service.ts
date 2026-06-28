@@ -4,7 +4,7 @@ import { Varity } from './entities/varity.entity';
 import { Repository } from 'typeorm';
 import { ErrorsExceptions } from '../../Errors/custom-errors-exceptions';
 import { VarityErrors } from '../../Errors/varity.errors';
-import { CreateVarityDto } from './entities/dto/create-varity.dto';
+import { CreateVarityDto } from './dto/create-varity.dto';
 
 @Injectable()
 export class VaritiesService {

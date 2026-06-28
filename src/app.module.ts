@@ -6,7 +6,6 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProductsModule } from './modules/products/products.module';
 import { CategoriesModule } from './modules/categories/categories.module';
-import { ProductCategoriesModule } from './modules/product-categories/product-categories.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { OrderProductsModule } from './modules/order-products/order-products.module';
 import { databaseImports } from './config/database-imports';
@@ -22,7 +21,6 @@ const domainModules =
       AuthModule,
       ProductsModule,
       CategoriesModule,
-      ProductCategoriesModule,
       OrdersModule,
       OrderProductsModule,
       LessonsModule,

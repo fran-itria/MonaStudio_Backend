@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { VaritiesService } from './varities.service';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CreateVarityDto } from './entities/dto/create-varity.dto';
+import { CreateVarityDto } from './dto/create-varity.dto';
 import type { Response } from 'express';
 
 @Controller('varities')

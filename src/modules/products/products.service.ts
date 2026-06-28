@@ -5,6 +5,8 @@ import { CreateProductDto } from "./dto/create-product-dto";
 import { DataSource, FindOptionsWhere, QueryFailedError } from "typeorm";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { UpdateProductDto } from "./dto/update-product-dto";
+import { ProductVarity } from "../product-varity/entities/product-varity.entity";
+import { Varity } from "../varities/entities/varity.entity";
 
 export class ProductsService {
     constructor(
@@ -26,6 +28,8 @@ export class ProductsService {
             .createQueryBuilder('product')
             .leftJoinAndSelect('product.categories', 'category')
             .leftJoinAndSelect('product.images', 'product_image')
+            .leftJoinAndSelect('product.productVarities', 'productVarity')
+            .leftJoinAndSelect('productVarity.varity', 'varity');
 
         categoryName && query.where('category.name = :categoryName', { categoryName })
         active && query.andWhere('product.active = :active', { active: active === 'inCatalog' ? true : false })
@@ -113,7 +117,31 @@ export class ProductsService {
             }
 
             if (data.varities !== undefined && data.varities.length > 0) {
-                product.varities = data.varities;
+                product.stock = undefined
+                for (const v of data.varities) {
+                    const isExist = await manager.findOne(ProductVarity, {
+                        where: {
+                            varity: {
+                                name: v.name
+                            }
+                        }
+                    })
+
+                    if (isExist) {
+                        isExist.stock = v.stock
+                        await manager.save(isExist)
+                    } else {
+                        const newVarity = manager.create(Varity)
+                        newVarity.name = v.name
+                        await manager.save(newVarity)
+
+                        await manager.insert(ProductVarity, {
+                            stock: v.stock,
+                            product: { id: product.id },
+                            varity: { id: newVarity?.id }
+                        })
+                    }
+                }
             }
 
             return manager.save(product);
@@ -123,7 +151,7 @@ export class ProductsService {
     async bulkUpdate(productsData: UpdateProductDto[]): Promise<Product[] | void> {
         return this.dataSource.transaction(async (manager) => {
             const products = await Promise.all(
-                productsData.map(async ({ id, ...data }) => {
+                productsData.map(async ({ id, ...data }, index) => {
                     const product = await manager.findOneByOrFail(Product, { id });
 
                     Object.assign(product, data);
@@ -133,7 +161,38 @@ export class ProductsService {
                     }
 
                     if (data.varities !== undefined && data.varities.length > 0) {
-                        product.varities = data.varities;
+                        product.stock = undefined
+                        for (const v of data.varities) {
+                            const isExist = await manager.findOne(ProductVarity, {
+                                where: {
+                                    varity: {
+                                        name: v.name
+                                    }
+                                }
+                            })
+
+                            if (isExist) {
+                                isExist.stock = v.stock
+                                await manager.save(isExist)
+                            } else {
+                                let varityExist = await manager.findOne(Varity, {
+                                    where: {
+                                        name: v.name
+                                    }
+                                })
+                                if (!varityExist) {
+                                    varityExist = manager.create(Varity)
+                                    varityExist.name = v.name
+                                    await manager.save(varityExist)
+                                }
+
+                                await manager.insert(ProductVarity, {
+                                    stock: v.stock,
+                                    product: { id: product.id },
+                                    varity: { id: varityExist?.id }
+                                })
+                            }
+                        }
                     }
 
                     return manager.save(product);

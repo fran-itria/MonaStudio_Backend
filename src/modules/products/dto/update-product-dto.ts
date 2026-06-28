@@ -37,7 +37,7 @@ export class UpdateProductDto {
     @IsString()
     description?: string
 
-    @ApiPropertyOptional({ description: 'Variedades del producto', example: [{ name: 'Rojo', stock: 5 }, { name: 'Azul', stock: 3 }] })
+    @ApiPropertyOptional({ description: 'Variedades del producto', example: [{ name: 'Nombre-variedad', stock: 5 }, { name: 'Nombre-variedad', stock: 3 }] })
     @IsOptional()
     @IsArray()
     varities?: { name: string, stock: number }[]

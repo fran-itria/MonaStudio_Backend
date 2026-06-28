@@ -25,6 +25,7 @@ export class ProductsService {
         const query = this.productRepository
             .createQueryBuilder('product')
             .leftJoinAndSelect('product.categories', 'category')
+            .leftJoinAndSelect('product.images', 'product_image')
 
         categoryName && query.where('category.name = :categoryName', { categoryName })
         active && query.andWhere('product.active = :active', { active: active === 'inCatalog' ? true : false })
@@ -35,11 +36,25 @@ export class ProductsService {
             .skip((page - 1) * limit)
             .take(limit)
 
-        return query.getMany()
+        return await query.getMany()
     }
 
     async findById(id: FindOptionsWhere<Product>) {
-        const product = await this.productRepository.findOneBy(id)
+        const product = await this.productRepository.findOne({
+            where: id,
+            relations: {
+                categories: true,
+                images: true
+            },
+            select: {
+                categories: {
+                    name: true
+                },
+                images: {
+                    url: true
+                }
+            }
+        })
         if (!product) throw new NotFoundException()
         return product
     }

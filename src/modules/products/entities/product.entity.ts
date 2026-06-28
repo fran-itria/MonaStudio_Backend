@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
 import { OrderProduct } from '../../order-products/entities/order-product.entity';
+import { ProductImage } from '../../product-image/entities/product-image.entity';
 
 type ProductIdReference = { id: string };
 
@@ -33,9 +34,6 @@ export class Product {
 
   @Column({ type: 'numeric' })
   price!: number;
-
-  @Column({ type: 'text', array: true, nullable: true })
-  image!: string[] | null;
 
   @Column({ type: 'integer', nullable: true })
   stock?: number;
@@ -73,4 +71,7 @@ export class Product {
 
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product)
   orderProducts!: OrderProduct[];
+
+  @OneToMany(() => ProductImage, (productImage) => productImage.product)
+  images!: ProductImage[];
 }

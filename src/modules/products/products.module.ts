@@ -5,9 +5,10 @@ import { ProductCategory } from '../product-categories/entities/product-category
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
 import { AuthModule } from '../auth/auth.module';
+import { ProductImage } from '../product-image/entities/product-image.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, ProductCategory]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Product, ProductCategory, ProductImage]), AuthModule],
   controllers: [ProductsController],
   providers: [ProductsService],
   exports: [TypeOrmModule],

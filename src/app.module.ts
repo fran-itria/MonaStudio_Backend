@@ -12,7 +12,8 @@ import { OrderProductsModule } from './modules/order-products/order-products.mod
 import { databaseImports } from './config/database-imports';
 import { LessonsModule } from './modules/lesson/lessons.module';
 import { CoursesModule } from './modules/courses/course.module';
-
+import { ProductImage } from './modules/product-image/entities/product-image.entity';
+import { ProductImageModule } from "./modules/product-image/product-image.module";
 const domainModules =
   process.env.NODE_ENV === 'test'
     ? []
@@ -25,7 +26,8 @@ const domainModules =
       OrdersModule,
       OrderProductsModule,
       LessonsModule,
-      CoursesModule
+      CoursesModule,
+      ProductImageModule,
     ];
 
 @Module({

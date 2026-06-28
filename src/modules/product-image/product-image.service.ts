@@ -15,7 +15,6 @@ export class ProductImageService {
             const newImage = this.imageRepository.create({ productId, url })
             await this.imageRepository.save(newImage)
         }
-        console.log(images)
         return
     }
 }

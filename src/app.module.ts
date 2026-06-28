@@ -13,6 +13,7 @@ import { LessonsModule } from './modules/lesson/lessons.module';
 import { CoursesModule } from './modules/courses/course.module';
 import { ProductImageModule } from "./modules/product-image/product-image.module";
 import { VaritiesModule } from './modules/varities/varities.module';
+import { ProductVarity } from './modules/product-varity/entities/product-varity.entity';
 const domainModules =
   process.env.NODE_ENV === 'test'
     ? []
@@ -26,7 +27,8 @@ const domainModules =
       LessonsModule,
       CoursesModule,
       ProductImageModule,
-      VaritiesModule
+      VaritiesModule,
+      ProductVarity
     ];
 
 @Module({

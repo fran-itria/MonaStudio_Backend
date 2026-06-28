@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { VaritiesService } from './varities.service';
-import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateVarityDto } from './dto/create-varity.dto';
 import type { Response } from 'express';
@@ -28,10 +28,11 @@ export class VaritiesController {
   }
 
   @ApiBearerAuth()
+  @ApiQuery({ name: "name", type: "string", description: "Buscar por nombre la variedad", required: false })
   @UseGuards(JwtAuthGuard)
   @Get()
-  async get(@Res() res: Response) {
-    const varities = await this.varitiesService.getAll()
+  async get(@Res() res: Response, @Query('name') name: string) {
+    const varities = await this.varitiesService.getAll(name)
     return res.status(200).json(varities)
   }
 }

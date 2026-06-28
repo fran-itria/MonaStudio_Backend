@@ -30,8 +30,11 @@ export class VaritiesService {
         return 201
     }
 
-    async getAll() {
+    async getAll(name: string) {
         const varities = await this.varityRepository.findAndCount({
+            where: {
+                name
+            },
             order: {
                 name: 'ASC'
             }

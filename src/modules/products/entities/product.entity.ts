@@ -11,6 +11,7 @@ import {
 import { Category } from '../../categories/entities/category.entity';
 import { OrderProduct } from '../../order-products/entities/order-product.entity';
 import { ProductImage } from '../../product-image/entities/product-image.entity';
+import { ProductVarity } from '../../product-varity/entities/product-varity.entity';
 
 type ProductIdReference = { id: string };
 
@@ -48,9 +49,6 @@ export class Product {
   active!: boolean;
 
   @Column({ type: 'jsonb', nullable: true })
-  varities?: { name: string, stock: number }[] | null;
-
-  @Column({ type: 'jsonb', nullable: true })
   relatedProducts!: ProductIdReference[] | null;
 
   @Column({ type: 'jsonb', nullable: true })
@@ -74,4 +72,7 @@ export class Product {
 
   @OneToMany(() => ProductImage, (productImage) => productImage.product)
   images!: ProductImage[];
+
+  @OneToMany(() => ProductVarity, (productVarity) => productVarity.product)
+  productVarities!: ProductVarity[]
 }

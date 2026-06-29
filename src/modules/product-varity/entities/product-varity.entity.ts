@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { Product } from "../../products/entities/product.entity";
 import { Varity } from "../../varities/entities/varity.entity";
+import { ProductVarityImage } from "../../varity-image/entities/varity-image.entity";
 
 
 @Entity('product_varity')
@@ -27,4 +28,7 @@ export class ProductVarity {
     )
     @JoinColumn({ name: 'varityId' })
     varity!: Varity
+
+    @OneToMany(() => ProductVarityImage, (productVarityImage) => productVarityImage.iamge)
+    images!: ProductVarityImage[];
 }

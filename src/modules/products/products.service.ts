@@ -44,21 +44,15 @@ export class ProductsService {
     }
 
     async findById(id: FindOptionsWhere<Product>) {
-        const product = await this.productRepository.findOne({
-            where: id,
-            relations: {
-                categories: true,
-                images: true
-            },
-            select: {
-                categories: {
-                    name: true
-                },
-                images: {
-                    url: true
-                }
-            }
-        })
+        const query = this.productRepository
+            .createQueryBuilder('product')
+            .where(id)
+            .leftJoinAndSelect('product.categories', 'category')
+            .leftJoinAndSelect('product.productVarities', 'productVarity')
+            .leftJoinAndSelect('productVarity.images', 'image');
+
+        const product = await query.getOne()
+
         if (!product) throw new NotFoundException()
         return product
     }

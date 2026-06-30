@@ -48,8 +48,10 @@ export class ProductsService {
             .createQueryBuilder('product')
             .where(id)
             .leftJoinAndSelect('product.categories', 'category')
+            .leftJoinAndSelect('product.images', 'product_image')
             .leftJoinAndSelect('product.productVarities', 'productVarity')
-            .leftJoinAndSelect('productVarity.images', 'image');
+            .leftJoinAndSelect('productVarity.images', 'image')
+            .leftJoinAndSelect('productVarity.varity', 'varity')
 
         const product = await query.getOne()
 
@@ -115,19 +117,26 @@ export class ProductsService {
                 for (const v of data.varities) {
                     const isExist = await manager.findOne(ProductVarity, {
                         where: {
-                            varity: {
-                                name: v.name
+                            product: {
+                                id: productData.id
                             }
+                        },
+                        relations: {
+                            varity: true
                         }
                     })
-
-                    if (isExist) {
+                    if (isExist?.varity.name == v.name) {
                         isExist.stock = v.stock
                         await manager.save(isExist)
                     } else {
-                        const newVarity = manager.create(Varity)
-                        newVarity.name = v.name
-                        await manager.save(newVarity)
+                        let newVarity = await manager.findOne(Varity, {
+                            where: { name: v.name }
+                        })
+                        if (!newVarity) {
+                            newVarity = manager.create(Varity)
+                            newVarity.name = v.name
+                            await manager.save(newVarity)
+                        }
 
                         await manager.insert(ProductVarity, {
                             stock: v.stock,

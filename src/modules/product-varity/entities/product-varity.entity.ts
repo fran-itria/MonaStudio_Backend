@@ -13,6 +13,9 @@ export class ProductVarity {
     @Column({ type: "integer" })
     stock!: number
 
+    @Column({ type: 'boolean', default: true })
+    active!: boolean
+
     @ManyToOne(
         () => Product,
         product => product.productVarities,

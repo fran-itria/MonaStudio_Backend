@@ -12,8 +12,22 @@ export class ProductImageController {
   @ApiBearerAuth()
   @ApiResponse({ status: 201 })
   @ApiBody({
-    type: CreateImagesDto,
-    isArray: true
+    schema: {
+      type: 'object',
+      properties: {
+        images: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              productVarityId: { type: 'string' },
+              url: { type: 'string' },
+            },
+            required: ['productVarityId', 'url'],
+          },
+        }
+      }
+    }
   })
   @UseGuards(JwtAuthGuard)
   @Post()

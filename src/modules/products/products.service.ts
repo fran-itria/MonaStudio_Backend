@@ -175,16 +175,13 @@ export class ProductsService {
                                 }
                             })
                             if (varityInProduct) {
-                                if (varity.stock != 0)
-                                    varityInProduct.stock = varity.stock;
-                                else {
-                                    varityInProduct.stock = varity.stock;
-                                    varityInProduct.active = false
-                                }
+                                varityInProduct.stock = varity.stock
+                                varityInProduct.active = varity.active
                                 await manager.save(varityInProduct)
                             } else {
                                 const newVarityInProduct = manager.create(ProductVarity, {
                                     stock: varity.stock,
+                                    active: true,
                                     product: { id: product.id },
                                     varity: { id: varity.id }
                                 })

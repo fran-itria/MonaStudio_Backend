@@ -149,4 +149,30 @@ export class ProductsController {
     const products = await this.productsService.bulkUpdate(productsData);
     return res.status(201).json(products);
   }
+
+
+  @ApiBearerAuth()
+  @ApiBody({
+    description: 'Actualiza stock general de varios productos que tienen variedades al mismo tiempo',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'ID del producto a actualizar' },
+        },
+        required: ['id']
+      }
+    }
+  })
+  @ApiResponse({ status: 201, description: 'Stocks actualizados exitosamente' })
+  @ApiResponse({ status: 400, description: 'Mal enviado los datos de actualización' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  @UseGuards(JwtAuthGuard)
+  @Patch('bulk-update-stocks')
+  async bulkUpdateStock(@Body() productsData: { id: string }[], @Res() res: Response) {
+    const products = await this.productsService.bulkUpdateStocks(productsData);
+    return res.status(201).json(products);
+  }
 }

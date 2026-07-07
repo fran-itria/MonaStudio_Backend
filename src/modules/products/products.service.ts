@@ -198,4 +198,21 @@ export class ProductsService {
             return products;
         });
     }
+
+
+    async bulkUpdateStocks(products: { id: string }[]): Promise<Product[] | void> {
+        const query = this.productRepository
+            .createQueryBuilder('product')
+            .where('product.id IN (:...ids)', { ids: products.map(p => p.id) })
+            .leftJoinAndSelect('product.productVarities', 'productVarity')
+        const productsDb = await query.getMany();
+        for (const product of productsDb) {
+            if (product.productVarities && product.productVarities.length > 0) {
+                const totalStock = product.productVarities.reduce((acc, varity) => acc + varity.stock, 0);
+                product.stock = totalStock;
+                await this.productRepository.save(product);
+            }
+        }
+        return productsDb;
+    }
 }

@@ -20,10 +20,10 @@ export class ProductImageController {
           items: {
             type: 'object',
             properties: {
-              productVarityId: { type: 'string' },
+              productId: { type: 'string' },
               url: { type: 'string' },
             },
-            required: ['productVarityId', 'url'],
+            required: ['productId', 'url'],
           },
         }
       }

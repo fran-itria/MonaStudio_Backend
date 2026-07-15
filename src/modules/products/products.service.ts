@@ -117,8 +117,8 @@ export class ProductsService {
                 product.categories = data.categories.map(id => ({ id })) as any;
             }
 
+            let stock = 0
             if (data.varities !== undefined && data.varities.length > 0) {
-                product.stock = undefined
                 for (const varity of data.varities) {
                     const varityInProduct = await manager.findOne(ProductVarity, {
                         where: {
@@ -127,14 +127,17 @@ export class ProductsService {
                         }
                     })
                     if (varityInProduct) {
-                        if (varity.stock != 0)
+                        if (varity.stock != 0) {
+                            stock += varity.stock;
                             varityInProduct.stock = varity.stock;
+                        }
                         else {
                             varityInProduct.stock = varity.stock;
                             varityInProduct.active = false
                         }
                         await manager.save(varityInProduct)
                     } else {
+                        stock += varity.stock;
                         const newVarityInProduct = manager.create(ProductVarity, {
                             stock: varity.stock,
                             product: { id: product.id },
@@ -144,8 +147,8 @@ export class ProductsService {
                     }
                 }
             }
-
             Object.assign(product, data)
+            product.stock = stock
             return await manager.save(product);
         });
     }

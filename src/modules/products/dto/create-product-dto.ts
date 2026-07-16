@@ -32,17 +32,17 @@ export class CreateProductDto {
     @IsString()
     description!: string
 
-    @ApiPropertyOptional({ description: 'Variedades del producto', example: [{ name: 'Rojo', stock: 5 }, { name: 'Azul', stock: 3 }] })
+    @ApiPropertyOptional({ description: 'Variedades del producto', example: [{ name: 'Rojo', stock: 5, image: 'https://example.com/image1.jpg' }, { name: 'Azul', stock: 3, image: 'https://example.com/image2.jpg' }] })
     @IsOptional()
     @IsArray()
-    varities?: { name: string, stock: number }[]
+    varities?: { name: string, stock: number, image?: string }[]
 
-    @ApiPropertyOptional({ description: 'Productos relacionados', example: [{ id: 'uuid-producto-relacionado-1' }, { id: 'uuid-producto-relacionado-2' }] })
+    @ApiPropertyOptional({ description: 'Productos relacionados', example: [{ id: 'id-producto-relacionado-1' }, { id: 'id-producto-relacionado-2' }] })
     @IsOptional()
     @IsArray()
     relatedProducts?: { id: string }[]
 
-    @ApiPropertyOptional({ description: 'Productos complementarios', example: [{ id: 'uuid-producto-complementario-1' }, { id: 'uuid-producto-complementario-2' }] })
+    @ApiPropertyOptional({ description: 'Productos complementarios', example: [{ id: 'id-producto-complementario-1' }, { id: 'id-producto-complementario-2' }] })
     @IsOptional()
     @IsArray()
     complementProducts?: { id: string }[]
@@ -52,7 +52,7 @@ export class CreateProductDto {
     @IsArray()
     section?: string[]
 
-    @ApiProperty({ description: 'Categorías del producto', example: ['uuid-categoria-1', 'uuid-categoria-2'] })
+    @ApiProperty({ description: 'Categorías del producto', example: ['id-categoria-1', 'id-categoria-2'] })
     @IsNotEmpty()
     @IsArray()
     categories!: string[]

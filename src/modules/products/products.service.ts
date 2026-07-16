@@ -6,15 +6,17 @@ import { DataSource, FindOptionsWhere, QueryFailedError } from "typeorm";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { UpdateProductDto } from "./dto/update-product-dto";
 import { ProductVarity } from "../product-varity/entities/product-varity.entity";
-import { Varity } from "../varities/entities/varity.entity";
 import { ErrorsExceptions } from "../../Errors/custom-errors-exceptions";
 import { PorductErrors } from "../../Errors/product.errors";
+import { ProductImage } from "../product-image/entities/product-image.entity";
+import { ProductVarityImage } from "../varity-image/entities/varity-image.entity";
+import { Varity } from "../varities/entities/varity.entity";
 
 export class ProductsService {
     constructor(
         @InjectRepository(Product)
         private readonly productRepository: Repository<Product>,
-        private readonly dataSource: DataSource
+        private readonly dataSource: DataSource,
     ) { }
 
     async findAll(
@@ -64,8 +66,41 @@ export class ProductsService {
     async create(productData: CreateProductDto): Promise<Product | void> {
         try {
             return await this.dataSource.transaction(async (manager) => {
+                const { image, varities } = productData;
                 const product = manager.create(Product, { ...productData, categories: productData.categories.map(id => ({ id })) });
-                return await manager.save(product);
+                await manager.save(product);
+                if (image && image.length > 0) {
+                    for (const img of image) {
+                        const newImage = manager.create(ProductImage, { productId: product.id, url: img });
+                        await manager.save(newImage);
+                    }
+                }
+                let sotckWithVarities = 0
+                if (varities && varities.length > 0) {
+                    for (const { name, stock, image } of varities) {
+                        sotckWithVarities += stock
+                        let varity = await manager.findOne(Varity, {
+                            where: { name }
+                        })
+                        if (!varity) {
+                            varity = manager.create(Varity, { name });
+                            await manager.save(varity);
+                        }
+                        const newVarityInProduct = manager.create(ProductVarity, {
+                            stock: stock,
+                            product: { id: product.id },
+                            varity: { id: varity.id }
+                        })
+                        await manager.save(newVarityInProduct)
+                        if (image) {
+                            const newImage = manager.create(ProductVarityImage, { productVarityId: newVarityInProduct.id, url: image });
+                            await manager.save(newImage);
+                        }
+                    }
+                    product.stock = sotckWithVarities
+                    await manager.save(product);
+                }
+                return product
             })
         }
         catch (error) {
@@ -74,6 +109,7 @@ export class ProductsService {
                     throw new BadRequestException('El producto ya está registrado.');
                 }
             }
+            throw error
         }
     }
 

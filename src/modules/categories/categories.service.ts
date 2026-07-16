@@ -3,6 +3,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Category } from "./entities/category.entity";
 import { Repository } from "typeorm/repository/Repository.js";
 import { CreateCategoryDto } from "./dto/create-categorie-dto";
+import { ErrorsExceptions } from "../../Errors/custom-errors-exceptions";
+import { CategoryErrors } from "../../Errors/category.errors";
 
 
 
@@ -29,5 +31,14 @@ export class CategoriesService {
             .values(categories)
             .execute();
         return createCategories.raw;
+    }
+
+    async delete(id: string): Promise<string> {
+        const category = await this.categoryRepository.findOneBy({ id });
+        if (!category) {
+            throw ErrorsExceptions.notFound(CategoryErrors.NOT_FOUND_CATEGORY.errorCode, CategoryErrors.NOT_FOUND_CATEGORY.message);
+        }
+        await this.categoryRepository.delete(id);
+        return "Categoría eliminada correctamente";
     }
 }

@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
-import { ApiBadGatewayResponse, ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Post, Res, UseGuards } from '@nestjs/common';
+import { ApiBadGatewayResponse, ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateCategoryDto } from './dto/create-categorie-dto';
 import { CategoriesService } from './categories.service';
@@ -70,5 +70,22 @@ export class CategoriesController {
     if (newCategories) {
       res.status(201).json(newCategories);
     }
+  }
+
+  @ApiBearerAuth()
+  @ApiParam({
+    name: 'id',
+    description: 'ID de la categoría a eliminar',
+    required: true,
+    type: 'string'
+  })
+  @ApiResponse({ status: 200, description: 'Categoría eliminada con éxito.' })
+  @ApiResponse({ status: 401, description: 'No autorizado.' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async deleteCategory(@Param('id') id: string, @Res() res: Response) {
+    const message = await this.categoriesService.delete(id);
+    res.status(200).json({ message });
   }
 }

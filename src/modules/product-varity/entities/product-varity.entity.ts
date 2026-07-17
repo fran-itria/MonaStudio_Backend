@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { Product } from "../../products/entities/product.entity";
 import { Varity } from "../../varities/entities/varity.entity";
 import { ProductVarityImage } from "../../varity-image/entities/varity-image.entity";
+import { ProductComponent } from "../../product-component/entities/product-component.entity";
 
 
 @Entity('product_varity')
@@ -31,6 +32,15 @@ export class ProductVarity {
     )
     @JoinColumn({ name: 'varityId' })
     varity!: Varity
+
+    @OneToMany(
+        () => ProductComponent,
+        (productComponent) => productComponent.varity,
+        {
+            cascade: true,
+        },
+    )
+    components!: ProductComponent[];
 
     @OneToMany(() => ProductVarityImage, (productVarityImage) => productVarityImage.iamge)
     images!: ProductVarityImage[];

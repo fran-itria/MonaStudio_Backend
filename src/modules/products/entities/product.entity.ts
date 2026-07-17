@@ -12,6 +12,7 @@ import { Category } from '../../categories/entities/category.entity';
 import { OrderProduct } from '../../order-products/entities/order-product.entity';
 import { ProductImage } from '../../product-image/entities/product-image.entity';
 import { ProductVarity } from '../../product-varity/entities/product-varity.entity';
+import { ProductComponent } from '../../product-component/entities/product-component.entity';
 
 type ProductIdReference = { id: string };
 
@@ -66,6 +67,15 @@ export class Product {
     inverseJoinColumn: { name: 'categoryId', referencedColumnName: 'id' },
   })
   categories!: Category[];
+
+  @OneToMany(
+    () => ProductComponent,
+    (productComponent) => productComponent.product,
+    {
+      cascade: true,
+    },
+  )
+  components!: ProductComponent[];
 
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product)
   orderProducts!: OrderProduct[];

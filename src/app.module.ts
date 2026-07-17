@@ -15,6 +15,7 @@ import { ProductImageModule } from "./modules/product-image/product-image.module
 import { VaritiesModule } from './modules/varities/varities.module';
 import { ProductVarity } from './modules/product-varity/entities/product-varity.entity';
 import { ProductVarityImageModule } from './modules/varity-image/varity-image.module';
+import { ProductComponentModule } from './modules/product-component/product-component.module';
 const domainModules =
   process.env.NODE_ENV === 'test'
     ? []
@@ -30,7 +31,8 @@ const domainModules =
       ProductImageModule,
       ProductVarityImageModule,
       VaritiesModule,
-      ProductVarity
+      ProductVarity,
+      ProductComponentModule
     ];
 
 @Module({

@@ -7,12 +7,12 @@ import { AuthModule } from '../auth/auth.module';
 import { ProductImage } from '../product-image/entities/product-image.entity';
 import { ProductVarity } from '../product-varity/entities/product-varity.entity';
 import { ProductComponent } from '../product-component/entities/product-component.entity';
-import { ProductImageService } from '../product-image/product-image.service';
+import { ProductComponentService } from '../product-component/product-component.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product, ProductImage, ProductVarity, ProductComponent]), AuthModule],
   controllers: [ProductsController],
-  providers: [ProductsService],
+  providers: [ProductsService, ProductComponentService],
   exports: [TypeOrmModule],
 })
 export class ProductsModule { }

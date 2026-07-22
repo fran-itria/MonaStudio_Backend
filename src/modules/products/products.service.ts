@@ -12,6 +12,7 @@ import { ProductImage } from "../product-image/entities/product-image.entity";
 import { ProductVarityImage } from "../varity-image/entities/varity-image.entity";
 import { Varity } from "../varities/entities/varity.entity";
 import { ProductComponentService } from "../product-component/product-component.service";
+import { SelectionMode } from "../product-component/entities/product-component.entity";
 
 export class ProductsService {
     constructor(
@@ -58,11 +59,69 @@ export class ProductsService {
             .leftJoinAndSelect('product.productVarities', 'productVarity')
             .leftJoinAndSelect('productVarity.images', 'image')
             .leftJoinAndSelect('productVarity.varity', 'varity')
+            .leftJoinAndSelect('product.components', 'components')
+            .leftJoinAndSelect('components.component', 'productComponent')
+            .leftJoinAndSelect('productComponent.productVarities', 'varities')
+            .leftJoinAndSelect('varities.varity', 'varityInfo')
 
         const product = await query.getOne()
-
         if (!product) throw new NotFoundException()
-        return product
+        let requiredSelections: number | null = 0
+        if (product.components.length > 0) {
+            const customComponent = product.components.find(
+                c => c.selectionMode === SelectionMode.CUSTOM
+            );
+
+            if (customComponent) {
+                requiredSelections = customComponent.selectionQuantity;
+            }
+        } else if (product.productVarities.length > 0) {
+            requiredSelections = 1;
+        }
+        let varitiesProduct: {
+            id: string,
+            name: string,
+            stock: number,
+            images: string[]
+        }[] | undefined = undefined
+        if (!product.productVarities.length) {
+            product.components.forEach(com =>
+                varitiesProduct = com.component.productVarities.map(varity => {
+                    return {
+                        id: varity.id,
+                        name: varity.varity.name,
+                        stock: varity.stock,
+                        active: varity.active,
+                        images: varity.images?.map(image => image.url)
+                    }
+                }))
+        } else {
+            varitiesProduct = product.productVarities.map(varity => {
+                return {
+                    id: varity.id,
+                    name: varity.varity.name,
+                    stock: varity.stock,
+                    active: varity.active,
+                    images: varity.images?.map(image => image.url)
+                }
+            })
+        }
+        const productReturn = {
+            id: product.id,
+            nombre: product.nombre,
+            price: product.price,
+            stock: product.stock,
+            discountedPrice: product.discountedPrice,
+            description: product.description,
+            active: product.active,
+            realatedProducts: product.relatedProducts,
+            complementProducts: product.complementProducts,
+            sections: product.section,
+            categories: product.categories.map(c => c.name),
+            varities: varitiesProduct,
+            requiredSelections,
+        }
+        return productReturn
     }
 
     async create(productData: CreateProductDto): Promise<Product | void> {

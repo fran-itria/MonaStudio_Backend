@@ -11,12 +11,14 @@ import { PorductErrors } from "../../Errors/product.errors";
 import { ProductImage } from "../product-image/entities/product-image.entity";
 import { ProductVarityImage } from "../varity-image/entities/varity-image.entity";
 import { Varity } from "../varities/entities/varity.entity";
+import { ProductComponentService } from "../product-component/product-component.service";
 
 export class ProductsService {
     constructor(
         @InjectRepository(Product)
         private readonly productRepository: Repository<Product>,
         private readonly dataSource: DataSource,
+        private readonly prodcutComponentService: ProductComponentService
     ) { }
 
     async findAll(
@@ -99,6 +101,11 @@ export class ProductsService {
                     }
                     product.stock = sotckWithVarities
                     await manager.save(product);
+                }
+                if (productData.productsComponent) {
+                    for (const productComponent of productData.productsComponent) {
+                        await this.prodcutComponentService.create(manager, { ...productComponent, productId: product.id });
+                    }
                 }
                 return product
             })

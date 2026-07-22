@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { CreateProductComponentDto } from "../../product-component/dto/create-product-component.dto";
 
 export class CreateProductDto {
     @ApiProperty({ description: 'Nombre del producto', example: 'Camiseta' })
@@ -56,4 +57,21 @@ export class CreateProductDto {
     @IsNotEmpty()
     @IsArray()
     categories!: string[]
+
+    @ApiProperty({
+        type: CreateProductComponentDto,
+        description: 'Productos a los que ser educirá el estock en una oferta o combo',
+        example: [
+            {
+                varityId: 'id-productVarity',
+                componentId: 'id-producto-relacionado-1',
+                stockReduce: 2,
+                selectionMode: "custom",
+                selectionQuantity: 2
+            }
+        ]
+    })
+    @IsOptional()
+    @IsArray()
+    productsComponent?: CreateProductComponentDto[]
 }

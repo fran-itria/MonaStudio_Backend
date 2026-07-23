@@ -9,8 +9,6 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { OrderProductsModule } from './modules/order-products/order-products.module';
 import { databaseImports } from './config/database-imports';
-import { LessonsModule } from './modules/lesson/lessons.module';
-import { CoursesModule } from './modules/courses/course.module';
 import { ProductImageModule } from "./modules/product-image/product-image.module";
 import { VaritiesModule } from './modules/varities/varities.module';
 import { ProductVarity } from './modules/product-varity/entities/product-varity.entity';
@@ -25,8 +23,6 @@ const domainModules =
       CategoriesModule,
       OrdersModule,
       OrderProductsModule,
-      LessonsModule,
-      CoursesModule,
       ProductImageModule,
       ProductVarityImageModule,
       VaritiesModule,

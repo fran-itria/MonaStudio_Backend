@@ -13,6 +13,13 @@ export enum PaymentStatus {
   FAILED = 'failed',
 }
 
+export enum OrderStatus {
+  PENDING = 'pending',
+  PAID = 'accept',
+  FAILED = 'rejected',
+  DELIVERED = 'delivered',
+}
+
 type CommentState = 'pending' | 'read' | 'answered';
 
 type OrderComment = {
@@ -33,14 +40,14 @@ export class Order {
   @Column({ type: 'enum', enum: PaymentMethod })
   paymentMethod!: PaymentMethod;
 
-  @Column({ type: 'enum', enum: PaymentStatus, nullable: true })
+  @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
   paymentStatus!: PaymentStatus | null;
 
   @Column({ type: 'jsonb', nullable: true })
   coment!: OrderComment | null;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  state!: string | null;
+  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
+  state!: OrderStatus | null;
 
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order)
   orderProducts!: OrderProduct[];

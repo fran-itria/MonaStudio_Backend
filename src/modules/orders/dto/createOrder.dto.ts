@@ -60,18 +60,19 @@ export default class Create_order_dto {
         example: [
             { id: "id-del-producto-1" },
             {
-                id: "id-del-producto-2",
+                id: "fcd89053-7d7e-4e3d-87ef-66abb33871ee",
+                quantity: 3,
                 varityId: [
                     {
-                        id: "product-varity-id-1",
+                        id: "7804e896-3ac9-47c8-9a8e-f3045067a7ae",
                         quantity: 1
                     },
                     {
-                        id: "product-varity-id-2",
+                        id: "78f3a631-f8d0-4153-a3e8-a8bdce748714",
                         quantity: 2
                     }
                 ]
-            },
+            }
         ]
     })
     @IsNotEmpty({

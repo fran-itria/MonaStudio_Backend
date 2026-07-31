@@ -28,7 +28,7 @@ export class OrderServices {
 
         try {
             return await this.datasource.transaction(async (manager) => {
-                const updateStock = await reduceStock(products, manager)
+                const updateStock = await reduceStock({ products, manager })
                 return "Prueba exitosa"
             })
         } catch (error) {

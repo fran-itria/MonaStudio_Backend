@@ -11,28 +11,32 @@ import { ProductsPrices, ReduceStockProps, SelectionsProps } from "../types"
 export default async function reduceStock({ products, manager }: ReduceStockProps) {
     const productsPrices: ProductsPrices[] = []
 
-    for (const product of products) {
+    for (const productOrder of products) {
 
-        const quantity = product.quantity ?? 1
-        const find = await productError(manager, product.id, quantity)
+        const quantity = productOrder.quantity ?? 1
+        const productInDb = await productError(manager, productOrder.id, quantity)
 
         const { validateSelection, requiredSelections } = validateProductSelections({
-            varityId: product.varityId,
-            components: find.components,
-            productVarities: find.productVarities,
+            varityId: productOrder.varityId,
+            components: productInDb.components,
+            productVarities: productInDb.productVarities,
             quantity
         })
 
         if (validateSelection) {
-            await productReduceStock(manager, find.id, quantity)
-            await varitiesReduceStock(manager, product.varityId)
-            await componentReduceStock(manager, find.components, quantity)
+            await productReduceStock(manager, productInDb.id, quantity)
+            await varitiesReduceStock(manager, productOrder.varityId)
+            await componentReduceStock(manager, productInDb.components, quantity)
         } else {
             const error = OrderErrors.BAD_REQUEST_SELECTIONS(requiredSelections * quantity)
             throw ErrorsExceptions.badRequest(error.erroCode, error.message)
         }
 
-        productsPrices.push({ price: find.price, discountedPrice: find.discountedPrice })
+        productsPrices.push({
+            price: productInDb.price,
+            discountedPrice: productInDb.discountedPrice,
+            quantity
+        })
     }
     return productsPrices
 }

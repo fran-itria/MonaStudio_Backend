@@ -25,5 +25,6 @@ export interface SelectionsProps {
 
 export interface ProductsPrices {
     price: number,
-    discountedPrice: number | null
+    discountedPrice: number | null,
+    quantity: number
 }

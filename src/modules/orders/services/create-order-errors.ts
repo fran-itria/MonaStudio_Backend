@@ -2,7 +2,7 @@ import { ErrorsExceptions } from "../../../Errors/custom-errors-exceptions"
 import { OrderErrors } from "../../../Errors/order.errors"
 import Create_order_dto, { Delivered } from "../dto/createOrder.dto"
 
-export default function CreateOrderErrors({
+export default function createOrderErrors({
     products,
     delivered,
     shippingData

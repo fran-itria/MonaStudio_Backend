@@ -43,10 +43,15 @@ export default class Create_order_dto {
             type: "object",
             properties: {
                 id: { type: "string" },
+                quantity: { type: "number" },
                 varityId: {
                     type: "array",
                     items: {
-                        type: "string"
+                        type: "object",
+                        properties: {
+                            id: { type: "string" },
+                            quantity: { type: "number" }
+                        }
                     }
                 }
             },
@@ -54,16 +59,26 @@ export default class Create_order_dto {
         },
         example: [
             { id: "id-del-producto-1" },
-            { id: "id-del-producto-2", varityId: ["product-varity-id-1", "product-varity-id-2"] },
-            { id: "id-del-producto-3", varityId: ["product-varity-id-1"] },
-            { id: "id-del-producto-3", varityId: ["product-varity-id-2"] }
+            {
+                id: "id-del-producto-2",
+                varityId: [
+                    {
+                        id: "product-varity-id-1",
+                        quantity: 1
+                    },
+                    {
+                        id: "product-varity-id-2",
+                        quantity: 2
+                    }
+                ]
+            },
         ]
     })
     @IsNotEmpty({
         message: OrderErrors.BAD_REQUEST_PRODUCTS.message
     })
     @IsArray()
-    products!: { id: string, varityId?: string[] }[]
+    products!: { id: string, quantity?: number, varityId?: { id: "string", quantity: number }[] }[]
 
     @ApiProperty({
         type: "string",

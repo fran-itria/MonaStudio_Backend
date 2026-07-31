@@ -1,31 +1,15 @@
 import { EntityManager, In } from "typeorm"
-import { ErrorsExceptions } from "../../Errors/custom-errors-exceptions"
-import { OrderErrors } from "../../Errors/order.errors"
-import Create_order_dto, { Delivered } from "./dto/createOrder.dto"
-import { Product } from "../products/entities/product.entity"
-import { ProductVarity } from "../product-varity/entities/product-varity.entity"
-import { SelectionMode } from "../product-component/entities/product-component.entity"
-import { PorductErrors } from "../../Errors/product.errors"
-import { VarityErrors } from "../../Errors/varity.errors"
+import { ErrorsExceptions } from "../../../Errors/custom-errors-exceptions"
+import { OrderErrors } from "../../../Errors/order.errors"
+import Create_order_dto, { Delivered } from "../dto/createOrder.dto"
+import { Product } from "../../products/entities/product.entity"
+import { ProductVarity } from "../../product-varity/entities/product-varity.entity"
+import { SelectionMode } from "../../product-component/entities/product-component.entity"
+import { PorductErrors } from "../../../Errors/product.errors"
+import { VarityErrors } from "../../../Errors/varity.errors"
+import { ProductsPrices } from "../types"
 
-
-
-export default function BadRequestForCreateOrder({
-    products,
-    delivered,
-    shippingData
-}: Pick<Create_order_dto, "delivered" | "shippingData" | "products">) {
-    if (products && products?.length < 1) {
-        throw ErrorsExceptions.badRequest(OrderErrors.BAD_REQUEST_PRODUCTS.errorCode, OrderErrors.BAD_REQUEST_PRODUCTS.message)
-    }
-
-    if (delivered == Delivered.CADETE && !shippingData) {
-        throw ErrorsExceptions.badRequest(OrderErrors.BAD_REQUEST_SHIPPING.errorCode, OrderErrors.BAD_REQUEST_SHIPPING.message)
-    }
-}
-
-
-export async function reduceStock(
+export default async function reduceStock(
     products: {
         id: string;
         quantity?: number | undefined;
@@ -36,6 +20,7 @@ export async function reduceStock(
     }[],
     manager: EntityManager
 ) {
+    const productsPrices: ProductsPrices[] = []
     for (const product of products) {
         const find = await manager.findOneOrFail(Product, {
             where: {
@@ -122,6 +107,7 @@ export async function reduceStock(
             const error = OrderErrors.BAD_REQUEST_SELECTIONS(requiredSelections * quantity)
             throw ErrorsExceptions.badRequest(error.erroCode, error.message)
         }
+        productsPrices.push({ price: find.price, discountedPrice: find.discountedPrice })
     }
-    return 204
+    return productsPrices
 }

@@ -1,14 +1,12 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { Order } from "./entities/order.entity";
-import { DataSource, EntityNotFoundError, In, QueryFailedError, Repository } from "typeorm";
+import { DataSource, EntityNotFoundError, Repository } from "typeorm";
 import Create_order_dto from "./dto/createOrder.dto";
 import { ErrorsExceptions } from "../../Errors/custom-errors-exceptions";
-import { OrderErrors } from "../../Errors/order.errors";
-import BadRequestForCreateOrder, { reduceStock } from "./services";
-import { Product } from "../products/entities/product.entity";
+import reduceStock from "./services/reduce-stock";
 import { PorductErrors } from "../../Errors/product.errors";
-import { ProductVarity } from "../product-varity/entities/product-varity.entity";
 import { VarityErrors } from "../../Errors/varity.errors";
+import createOrderErrors from "./services/create-order-errors";
 
 export class OrderServices {
     constructor(
@@ -26,7 +24,7 @@ export class OrderServices {
             products,
             shippingData
         } = info
-        BadRequestForCreateOrder({ products, delivered, shippingData })
+        createOrderErrors({ products, delivered, shippingData })
 
         try {
             return await this.datasource.transaction(async (manager) => {

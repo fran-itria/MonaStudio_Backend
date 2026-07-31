@@ -1,12 +1,13 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { Order } from "./entities/order.entity";
-import { DataSource, EntityNotFoundError, In, Repository } from "typeorm";
+import { DataSource, EntityNotFoundError, In, QueryFailedError, Repository } from "typeorm";
 import Create_order_dto from "./dto/createOrder.dto";
 import { ErrorsExceptions } from "../../Errors/custom-errors-exceptions";
 import { OrderErrors } from "../../Errors/order.errors";
-import BadRequestForCreateOrder from "./services";
+import BadRequestForCreateOrder, { reduceStock } from "./services";
 import { Product } from "../products/entities/product.entity";
 import { PorductErrors } from "../../Errors/product.errors";
+import { ProductVarity } from "../product-varity/entities/product-varity.entity";
 
 export class OrderServices {
     constructor(
@@ -15,7 +16,7 @@ export class OrderServices {
         private readonly datasource: DataSource
     ) { }
 
-    async create(info: Create_order_dto): Promise<Product[] | void> {
+    async create(info: Create_order_dto): Promise<string | void> {
         const {
             client_name,
             client_surname,
@@ -28,20 +29,12 @@ export class OrderServices {
 
         try {
             return await this.datasource.transaction(async (manager) => {
-                const productsInDb: Product[] = []
-                for (const product of products) {
-                    const find = await manager.findOneByOrFail(Product, {
-                        id: product.id
-                    })
-                    if (find)
-                        productsInDb.push(find)
-                }
-                return productsInDb
+                const updateStock = await reduceStock(products, manager)
+                return "Prueba exitosa"
             })
         } catch (error) {
             if (error instanceof EntityNotFoundError) {
-                const id = error.message.split(' ').at(-1)?.replaceAll(/[\\"\r\n}]/g, '')
-                throw ErrorsExceptions.notFound(PorductErrors.NOT_FOUND_PRODUCT.errorCode, `${PorductErrors.NOT_FOUND_PRODUCT.message}: ${id}`)
+                throw ErrorsExceptions.notFound(PorductErrors.NOT_FOUND_ANY_PRODUCT.errorCode, `${PorductErrors.NOT_FOUND_ANY_PRODUCT.message}`)
             }
             throw error
         }

@@ -7,6 +7,7 @@ import reduceStock from "./services/reduce-stock";
 import { PorductErrors } from "../../Errors/product.errors";
 import { VarityErrors } from "../../Errors/varity.errors";
 import createOrderErrors from "./services/create-order-errors";
+import calculatePrice from "./services/calculatePrice";
 
 export class OrderServices {
     constructor(
@@ -15,7 +16,7 @@ export class OrderServices {
         private readonly datasource: DataSource
     ) { }
 
-    async create(info: Create_order_dto): Promise<string | void> {
+    async create(info: Create_order_dto): Promise<{ message: "Prueba exitosa", price } | void> {
         const {
             client_name,
             client_surname,
@@ -28,8 +29,12 @@ export class OrderServices {
 
         try {
             return await this.datasource.transaction(async (manager) => {
-                const updateStock = await reduceStock({ products, manager })
-                return "Prueba exitosa"
+                const productsPrice = await reduceStock({ products, manager })
+                let price = 0
+                if (productsPrice.length) {
+                    price = calculatePrice(productsPrice)
+                }
+                return { message: "Prueba exitosa", price }
             })
         } catch (error) {
             if (error instanceof EntityNotFoundError) {

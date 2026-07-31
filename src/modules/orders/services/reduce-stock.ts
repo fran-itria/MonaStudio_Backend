@@ -88,14 +88,29 @@ const validateProductSelections = ({ varityId, components, productVarities, quan
 }
 
 const productReduceStock = async (manager: EntityManager, id: string, quantity = 1) => {
-    await manager.decrement(
-        Product,
-        {
-            id: id
-        },
-        "stock",
-        quantity
-    )
+    await manager
+        .createQueryBuilder()
+        .update(Product)
+        .set({
+            stock: () => '"stock" - :quantity',
+
+            active: () => `
+                CASE
+                    WHEN "stock" - :quantity = 0
+                    THEN false
+                    ELSE "active"
+                END
+            `
+        })
+        .where("id = :id", { id })
+        .andWhere('"stock" >= :quantity', { quantity })
+        .setParameter("quantity", quantity)
+        .returning([
+            "id",
+            "stock",
+            "active"
+        ])
+        .execute();
 }
 
 const varitiesReduceStock = async (manager: EntityManager, varities: ReduceStockProps["products"][number]["varityId"]) => {
@@ -113,6 +128,8 @@ const varitiesReduceStock = async (manager: EntityManager, varities: ReduceStock
                 const error = VarityErrors.INSUFICIENT_STOCK(find.varity.name)
                 throw ErrorsExceptions.conflict(error.errorCode, error.message)
             }
+            if (varity.quantity == find.stock)
+                await manager.update(ProductVarity, { id: varity.id }, { active: false })
             await manager.decrement(
                 ProductVarity,
                 {

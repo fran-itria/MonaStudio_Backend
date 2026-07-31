@@ -93,14 +93,14 @@ export default class Create_order_dto {
     delivered!: Delivered
 
     @ApiProperty({
-        type: "number",
+        type: "string",
         nullable: false,
-        example: 3434403870
+        example: "3434403870"
     })
     @IsNotEmpty({
         message: OrderErrors.BAD_REQUEST_PHONE.message
     })
-    phone!: number
+    phone!: string
 
     @ApiProperty({
         type: "object",
@@ -118,5 +118,17 @@ export default class Create_order_dto {
         }
     })
     @IsOptional()
-    shippingData?: number
+    shippingData?: {
+        street: string,
+        number: number,
+        floor?: number,
+        letter: string
+    }
+
+    @ApiProperty({
+        type: "string",
+        example: "Puedo pasar a buscarlo el Lunes?"
+    })
+    @IsOptional()
+    coment?: string
 }

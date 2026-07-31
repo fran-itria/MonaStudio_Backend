@@ -16,14 +16,15 @@ export class OrderServices {
         private readonly datasource: DataSource
     ) { }
 
-    async create(info: Create_order_dto): Promise<{ message: "Prueba exitosa", price } | void> {
+    async create(info: Create_order_dto): Promise<Order | void> {
         const {
             client_name,
             client_surname,
             delivered,
             phone,
             products,
-            shippingData
+            shippingData,
+            coment
         } = info
         createOrderErrors({ products, delivered, shippingData })
 
@@ -31,10 +32,21 @@ export class OrderServices {
             return await this.datasource.transaction(async (manager) => {
                 const productsPrice = await reduceStock({ products, manager })
                 let price = 0
+
                 if (productsPrice.length) {
                     price = calculatePrice(productsPrice)
                 }
-                return { message: "Prueba exitosa", price }
+
+                const order = manager.create(Order, {
+                    client_name,
+                    client_surname,
+                    amount: price,
+                    coment,
+                    shipping: shippingData,
+                    phone
+                })
+                manager.save(order)
+                return order
             })
         } catch (error) {
             if (error instanceof EntityNotFoundError) {

@@ -24,7 +24,8 @@ export class OrderServices {
             phone,
             products,
             shippingData,
-            coment
+            coment,
+            paymentMethod
         } = info
         createOrderErrors({ products, delivered, shippingData })
 
@@ -43,9 +44,10 @@ export class OrderServices {
                     amount: price,
                     coment,
                     shipping: shippingData,
-                    phone
+                    phone,
+                    paymentMethod
                 })
-                manager.save(order)
+                await manager.save(order)
                 return order
             })
         } catch (error) {

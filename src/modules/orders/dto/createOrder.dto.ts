@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsEnum, IsNotEmpty, IsOptional } from "class-validator";
 import { OrderErrors } from "../../../Errors/order.errors";
+import { PaymentMethod } from "../entities/order.entity";
 
 export enum Delivered {
     CADETE = "cadete",
@@ -91,6 +92,17 @@ export default class Create_order_dto {
     })
     @IsEnum(Delivered)
     delivered!: Delivered
+
+    @ApiProperty({
+        type: "string",
+        nullable: false,
+        example: PaymentMethod.TRANSFER
+    })
+    @IsNotEmpty({
+        message: OrderErrors.BAD_REQUEST_PAYMENT_METHOD.message
+    })
+    @IsEnum(PaymentMethod)
+    paymentMethod!: PaymentMethod
 
     @ApiProperty({
         type: "string",

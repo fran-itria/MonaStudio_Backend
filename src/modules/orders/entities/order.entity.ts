@@ -32,13 +32,13 @@ export class Order {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'string', nullable: false })
+  @Column({ type: 'varchar', length: 150, nullable: false })
   client_name!: string;
 
-  @Column({ type: 'string', nullable: false })
+  @Column({ type: 'varchar', length: 150, nullable: false })
   client_surname!: string;
 
-  @Column({ type: 'string', nullable: false })
+  @Column({ type: 'varchar', length: 150, nullable: false })
   phone!: string;
 
   @Column({ type: 'numeric' })
@@ -50,7 +50,7 @@ export class Order {
   @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
   paymentStatus!: PaymentStatus;
 
-  @Column({ type: 'string', nullable: true })
+  @Column({ type: 'varchar', length: 150, nullable: true })
   coment!: string | null;
 
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })

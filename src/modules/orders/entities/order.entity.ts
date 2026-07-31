@@ -20,19 +20,26 @@ export enum OrderStatus {
   DELIVERED = 'delivered',
 }
 
-type CommentState = 'pending' | 'read' | 'answered';
-
-type OrderComment = {
-  message: string;
-  date: Date;
-  name: string;
-  state: CommentState;
-};
+interface ShippingInfo {
+  street: string,
+  number: number,
+  floor?: number,
+  letter?: string
+}
 
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  @Column({ type: 'string', nullable: false })
+  client_name!: string;
+
+  @Column({ type: 'string', nullable: false })
+  client_surname!: string;
+
+  @Column({ type: 'string', nullable: false })
+  phone!: string;
 
   @Column({ type: 'numeric' })
   amount!: number;
@@ -41,13 +48,16 @@ export class Order {
   paymentMethod!: PaymentMethod;
 
   @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
-  paymentStatus!: PaymentStatus | null;
+  paymentStatus!: PaymentStatus;
 
-  @Column({ type: 'jsonb', nullable: true })
-  coment!: OrderComment | null;
+  @Column({ type: 'string', nullable: true })
+  coment!: string | null;
 
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
-  state!: OrderStatus | null;
+  state!: OrderStatus;
+
+  @Column({ type: 'jsonb', nullable: true })
+  shipping?: ShippingInfo | null;
 
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order)
   orderProducts!: OrderProduct[];

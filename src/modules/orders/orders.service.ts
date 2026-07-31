@@ -8,6 +8,7 @@ import BadRequestForCreateOrder, { reduceStock } from "./services";
 import { Product } from "../products/entities/product.entity";
 import { PorductErrors } from "../../Errors/product.errors";
 import { ProductVarity } from "../product-varity/entities/product-varity.entity";
+import { VarityErrors } from "../../Errors/varity.errors";
 
 export class OrderServices {
     constructor(
@@ -34,7 +35,11 @@ export class OrderServices {
             })
         } catch (error) {
             if (error instanceof EntityNotFoundError) {
-                throw ErrorsExceptions.notFound(PorductErrors.NOT_FOUND_ANY_PRODUCT.errorCode, `${PorductErrors.NOT_FOUND_ANY_PRODUCT.message}`)
+                const entity = error.entityClass.toString().split(" ")[1]
+                if (entity == "Product")
+                    throw ErrorsExceptions.notFound(PorductErrors.NOT_FOUND_ANY_PRODUCT.errorCode, PorductErrors.NOT_FOUND_ANY_PRODUCT.message)
+                if (entity == "ProductVarity")
+                    throw ErrorsExceptions.notFound(VarityErrors.NOT_FOUND_VARITY.errorCode, VarityErrors.NOT_FOUND_VARITY.message)
             }
             throw error
         }

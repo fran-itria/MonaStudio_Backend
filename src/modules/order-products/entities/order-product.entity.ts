@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Order } from '../../orders/entities/order.entity';
 import { Product } from '../../products/entities/product.entity';
+import { Varity } from '../../varities/entities/varity.entity';
 
 @Entity('order_products')
 @Check(`"quantity" > 0`)
@@ -17,6 +18,9 @@ export class OrderProduct {
 
   @PrimaryColumn({ type: 'uuid' })
   productId!: string;
+
+  @PrimaryColumn({ type: 'uuid' })
+  varityId!: string;
 
   @Column({ type: 'integer', default: 1, nullable: false })
   quantity!: number;
@@ -32,4 +36,10 @@ export class OrderProduct {
   })
   @JoinColumn({ name: 'productId' })
   product!: Product;
+
+  @ManyToOne(() => Varity, (varity) => varity.orderProducts, {
+    onDelete: 'RESTRICT',
+  })
+  @JoinColumn({ name: 'varityId' })
+  varity!: Varity;
 }

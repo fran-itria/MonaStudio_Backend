@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { Product } from "../../products/entities/product.entity";
 import { ProductVarity } from "../../product-varity/entities/product-varity.entity";
+import { OrderProduct } from "../../order-products/entities/order-product.entity";
 
 
 @Entity('varity')
@@ -14,4 +15,7 @@ export class Varity {
 
     @OneToMany(() => ProductVarity, (productVarity) => productVarity.varity)
     productVarities!: ProductVarity[]
+
+    @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.varity)
+    orderProducts!: OrderProduct[];
 }

@@ -1,5 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Generated, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { OrderProduct } from '../../order-products/entities/order-product.entity';
+import { Payment } from '../../payment/entities/payment.entity';
 
 export enum PaymentMethod {
   CASH = 'cash',
@@ -32,6 +33,10 @@ export class Order {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column({ type: 'integer' })
+  @Generated('increment')
+  order_number!: number
+
   @Column({ type: 'varchar', length: 150, nullable: false })
   client_name!: string;
 
@@ -61,4 +66,13 @@ export class Order {
 
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order)
   orderProducts!: OrderProduct[];
+
+  @OneToMany(() => Payment, (payment) => payment.order)
+  payments!: Payment[];
+
+  @CreateDateColumn()
+  created_at!: Date
+
+  @UpdateDateColumn()
+  updated_at!: Date
 }

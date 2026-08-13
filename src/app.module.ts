@@ -13,6 +13,9 @@ import { ProductImageModule } from "./modules/product-image/product-image.module
 import { VaritiesModule } from './modules/varities/varities.module';
 import { ProductVarity } from './modules/product-varity/entities/product-varity.entity';
 import { ProductVarityImageModule } from './modules/varity-image/varity-image.module';
+import { ScheduleModule } from "@nestjs/schedule";
+
+
 const domainModules =
   process.env.NODE_ENV === 'test'
     ? []
@@ -34,6 +37,7 @@ const domainModules =
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     ...databaseImports,
     ...domainModules,
     UsersModule,

@@ -1,4 +1,4 @@
-import { EntityManager } from "typeorm"
+import { EntityManager, MoreThanOrEqual } from "typeorm"
 import { ErrorsExceptions } from "../../../Errors/custom-errors-exceptions"
 import { OrderErrors } from "../../../Errors/order.errors"
 import { Product } from "../../products/entities/product.entity"
@@ -144,13 +144,18 @@ const varitiesReduceStock = async (manager: EntityManager, varities: ReduceStock
 const componentReduceStock = async (manager: EntityManager, components: Product["components"], quantity = 1) => {
     if (components.length)
         for (const component of components) {
-            await manager.decrement(
+            const result = await manager.decrement(
                 Product,
                 {
-                    id: component.componentId
+                    id: component.componentId,
+                    stock: MoreThanOrEqual(component.stockReduce)
                 },
                 "stock",
                 component.stockReduce * quantity || 1
             )
+            if (!result.affected) {
+                const error = PorductErrors.INSUFICIENT_STOCK(component.stockReduce, component.productId)
+                throw ErrorsExceptions.conflict("INSUFICIENT_STOCK", "Stock insuficiente en alguno de los productos del combo/oferta")
+            }
         }
 }

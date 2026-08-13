@@ -33,12 +33,13 @@ export default class Create_order_dto {
     @ApiProperty({
         type: "array",
         nullable: false,
-        description: `Si required selection es 1 y quiere llevar mas de un producto
-        tendría que mandarse como en el caso de producto-3. Si un producto tiene required 
-        selection más de 1, el product se mandaría como en el caso de producto-2 (ejemplo el 
-        tinta dapop 2x1, que es un producto que requiere elegir más de una variedad, si
-        quiere llevar mas de un tinta dapop 2x1, tendría que mandarse como producto-3
-        donde cada uno tendría las varityId como producto-2) 
+        description: `Si required selection es 0, se manda como producto 1, si es 1 y 
+        quiere llevar mas de un producto tendría que mandarse como en el caso de producto-3. 
+        Si un producto tiene required  selection más de 1, el product se mandaría como
+        en el caso de producto-2 (ejemplo el tinta dapop 2x1, que es un producto 
+        que requiere elegir más de una variedad, si quiere llevar mas de un tinta dapop 2x1,
+        tendría que mandarse como producto-3 donde cada uno tendría las varityId 
+        como producto-2) 
         `,
         items: {
             type: "object",
@@ -59,7 +60,7 @@ export default class Create_order_dto {
             required: ["id"]
         },
         example: [
-            { id: "id-del-producto-1" },
+            { id: "id-del-producto-1", quantity: 1 },
             {
                 id: "fcd89053-7d7e-4e3d-87ef-66abb33871ee",
                 quantity: 3,

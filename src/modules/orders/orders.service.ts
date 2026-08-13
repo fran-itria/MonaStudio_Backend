@@ -131,7 +131,7 @@ export class OrderServices {
                         id: product.productId,
                         title: product.product.nombre,
                         quantity: Number(product.quantity),
-                        unit_price: 2000
+                        unit_price: Number(product.product.price)
                     })
                 } else if (!items[findIndex].title.includes("2x")) {
                     items[findIndex].quantity += product.quantity

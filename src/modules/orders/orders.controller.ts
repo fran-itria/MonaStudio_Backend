@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Headers, Post, Query, Res } from '@nestjs/common';
 import { ApiBody, ApiResponse } from '@nestjs/swagger';
 import Create_order_dto from './dto/createOrder.dto';
 import type { Response } from 'express';
@@ -61,5 +61,48 @@ export class OrdersController {
     const order = await this.orderServices.create(body)
     if (order)
       res.status(201).json(order)
+  }
+
+  @ApiBody({
+    type: "object",
+    schema: {
+      example: {
+        orderId: "id-de-la-orden"
+      }
+    }
+  })
+  @Post('/create-preference')
+  async createPreference(@Body() { orderId }: { orderId: string }, @Res() res: Response): Promise<void> {
+    const preference = await this.orderServices.createPreference(orderId)
+    res.status(201).json({ init: preference.init_point, sandbox: preference.sandbox_init_point })
+  }
+
+  @Post('/webhook/mercadopago')
+  async webhookMercadoPago(
+    @Body() body: any,
+    @Query() query: any,
+    @Res() res: Response
+  ): Promise<void> {
+
+    const paymentId = body?.data?.id ?? query?.['data.id'] ?? body?.resource;
+    if (!paymentId) {
+      res.status(200).send('OK');
+      return
+    };
+
+    const type = body?.type ?? query?.type;
+
+    const webhook =
+      await this.orderServices.registerMercadoPagoWebhook({
+        providerEventId: body?.id ? String(body.id) : null,
+        paymentId: String(paymentId),
+        type,
+        action: body?.action ?? null,
+        payload: body
+      });
+
+    res.status(200).send('OK');
+
+    await this.orderServices.processMercadoPagoWebhook(webhook.id)
   }
 }

@@ -1,4 +1,5 @@
 export class OrderErrors {
+    static readonly NOT_FOUND = { message: "Orden no encontrada", errorCode: "NOT_FOUND" }
     static readonly BAD_REQUEST_NAME = { message: "El nombre es obligatorio", errorCode: "BAD_REQUEST" }
     static readonly BAD_REQUEST_SURNAME = { message: "El apellido es obligatorio", errorCode: "BAD_REQUEST" }
     static readonly BAD_REQUEST_DELIVERED = { message: "Se debe elegir un método de entrega", errorCode: "BAD_REQUEST" }

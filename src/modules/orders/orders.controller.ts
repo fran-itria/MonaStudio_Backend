@@ -71,7 +71,6 @@ export class OrdersController {
       }
     }
   })
-  @ApiExcludeEndpoint()
   @Post('/create-preference')
   async createPreference(@Body() { orderId }: { orderId: string }, @Res() res: Response): Promise<void> {
     const preference = await this.orderServices.createPreference(orderId)

@@ -1,5 +1,5 @@
 import { Body, Controller, Headers, Post, Query, Res } from '@nestjs/common';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiExcludeEndpoint, ApiResponse } from '@nestjs/swagger';
 import Create_order_dto from './dto/createOrder.dto';
 import type { Response } from 'express';
 import { OrderServices } from './orders.service';
@@ -71,12 +71,14 @@ export class OrdersController {
       }
     }
   })
+  @ApiExcludeEndpoint()
   @Post('/create-preference')
   async createPreference(@Body() { orderId }: { orderId: string }, @Res() res: Response): Promise<void> {
     const preference = await this.orderServices.createPreference(orderId)
     res.status(201).json({ init: preference.init_point, sandbox: preference.sandbox_init_point })
   }
 
+  @ApiExcludeEndpoint()
   @Post('/webhook/mercadopago')
   async webhookMercadoPago(
     @Body() body: any,

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiResponse } from '@nestjs/swagger';
 import { UserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 
@@ -24,6 +24,7 @@ export class UsersController {
     },
   })
   @ApiResponse({ status: 201, description: 'Usuario creado con éxito.', type: UserDto })
+  @ApiExcludeEndpoint()
   @Post()
   async create(@Body() createUserDto: UserDto): Promise<UserDto | void> {
     return await this.usersService.create(createUserDto);

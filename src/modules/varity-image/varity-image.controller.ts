@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiResponse } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { CreateImagesDto } from './dto/create-image.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -29,6 +29,7 @@ export class ProductVarityImageController {
       }
     }
   })
+  @ApiExcludeEndpoint()
   @UseGuards(JwtAuthGuard)
   @Post()
   async bulkCreate(@Res() res: Response, @Body() body: { images: CreateImagesDto[] }) {

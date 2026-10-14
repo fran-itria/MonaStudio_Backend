@@ -137,7 +137,7 @@ export class OrderServices {
                     items[findIndex].quantity += product.quantity
                 }
             })
-            const client = new MercadoPagoConfig({ accessToken: process.env.ACCESS_TOKEN_SANDBOX! });
+            const client = new MercadoPagoConfig({ accessToken: process.env.ACCESS_TOKEN_PRODUCTION! });
             const preference = new Preference(client)
 
             const api = process.env.PUBLIC_ORIGIN
@@ -207,7 +207,7 @@ export class OrderServices {
             const response = await fetch(`https://api.mercadopago.com/v1/payments/${webhook.payment_id}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${process.env.ACCESS_TOKEN_SANDBOX}`,
+                    'Authorization': `Bearer ${process.env.ACCESS_TOKEN_PRODUCTION}`,
                     'Content-Type': 'application/json'
                 }
             });

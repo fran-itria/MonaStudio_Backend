@@ -123,6 +123,19 @@ export class ProductsService {
         }
         return productReturn
     }
+    async findByName(name: string) {
+        const product = await this.productRepository.find({
+            where: {
+                nombre: name
+            },
+            relations: {
+                images: true,
+                categories: true
+            }
+        })
+        if (!product) throw new NotFoundException()
+        return product
+    }
 
     async create(productData: CreateProductDto): Promise<Product | void> {
         try {
@@ -246,9 +259,52 @@ export class ProductsService {
                             varity: { id: varity.id }
                         })
                         await manager.save(newVarityInProduct)
+                        varity.productVarityId = newVarityInProduct.id
                     }
                 }
+
+                const productsVarities = await manager.find(ProductVarity, {
+                    where: {
+                        product: { id: product.id }
+                    },
+                    relations: {
+                        varity: true
+                    }
+                })
+
+                if (data.varities?.length)
+                    for (const varityDb of productsVarities) {
+                        const varityNotFound = data.varities.find(varity => varity.productVarityId == varityDb.id)
+                        if (!varityNotFound)
+                            await manager.delete(ProductVarity, varityDb.id)
+                    }
             }
+
+            if (data.image?.length) {
+                const imagesDb = await manager.find(ProductImage, {
+                    where: {
+                        productId: product.id
+                    }
+                })
+
+                for (const image of data.image) {
+                    const imageFind = imagesDb.find(e => e.url == image)
+                    if (!imageFind) {
+                        const newImage = manager.create(ProductImage, {
+                            productId: product.id,
+                            url: image
+                        })
+                        await manager.save(newImage)
+                    }
+                }
+
+                for (const imageDb of imagesDb) {
+                    const imageNotFound = data.image.find(image => image == imageDb.url)
+                    if (!imageNotFound)
+                        await manager.delete(ProductImage, imageDb.id)
+                }
+            }
+
             Object.assign(product, data)
             product.stock = stock
             return await manager.save(product);

@@ -84,6 +84,13 @@ export class ProductsController {
     return res.status(200).json(product)
   }
 
+  @Get('byName/:name')
+  async findOneProductByName(@Param('name') name: string, @Res() res: Response) {
+    console.log(name)
+    const product = await this.productsService.findByName(name)
+    return res.status(200).json(product)
+  }
+
   @ApiBearerAuth()
   @ApiBody({
     description: 'Crea un nuevo producto',

@@ -40,7 +40,7 @@ export class UpdateProductDto {
     @ApiPropertyOptional({ description: 'Variedades del producto', example: [{ id: 'id-variedad-1', stock: 5, active: true }, { id: 'id-variedad-2', stock: 0, active: false }] })
     @IsOptional()
     @IsArray()
-    varities?: { id: string, stock: number, active: boolean }[]
+    varities?: { id: string, productVarityId: string, stock: number, active: boolean }[]
 
     @ApiPropertyOptional({ description: 'Productos relacionados', example: [{ id: 'uuid-producto-relacionado-1' }, { id: 'uuid-producto-relacionado-2' }] })
     @IsOptional()

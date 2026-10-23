@@ -130,7 +130,10 @@ export class ProductsService {
             },
             relations: {
                 images: true,
-                categories: true
+                categories: true,
+                productVarities: {
+                    varity: true
+                }
             }
         })
         if (!product) throw new NotFoundException()

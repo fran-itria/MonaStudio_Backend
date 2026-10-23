@@ -144,7 +144,17 @@ export class ProductsService {
         try {
             return await this.dataSource.transaction(async (manager) => {
                 const { image, varities } = productData;
-                const product = manager.create(Product, { ...productData, categories: productData.categories.map(id => ({ id })) });
+                const uniqueCategories = [...new Set(productData.categories)];
+                const stock = varities && varities?.length > 0 ? varities?.reduce(
+                    (total, varity) => total + varity.stock,
+                    0
+                ) : productData.stock;
+                const product = manager.create(Product, {
+                    ...productData,
+                    stock,
+                    categories: uniqueCategories.map(id => ({ id }))
+                });
+
                 await manager.save(product);
                 if (image && image.length > 0) {
                     for (const img of image) {
@@ -152,31 +162,18 @@ export class ProductsService {
                         await manager.save(newImage);
                     }
                 }
-                let sotckWithVarities = 0
-                if (varities && varities.length > 0) {
-                    for (const { name, stock, image } of varities) {
-                        sotckWithVarities += stock
-                        let varity = await manager.findOne(Varity, {
-                            where: { name }
-                        })
-                        if (!varity) {
-                            varity = manager.create(Varity, { name });
-                            await manager.save(varity);
-                        }
+                if (varities !== undefined && varities.length > 0) {
+                    for (const varity of varities) {
                         const newVarityInProduct = manager.create(ProductVarity, {
-                            stock: stock,
+                            stock: varity.stock,
                             product: { id: product.id },
                             varity: { id: varity.id }
                         })
                         await manager.save(newVarityInProduct)
-                        if (image) {
-                            const newImage = manager.create(ProductVarityImage, { productVarityId: newVarityInProduct.id, url: image });
-                            await manager.save(newImage);
-                        }
+                        varity.productVarityId = newVarityInProduct.id
                     }
-                    product.stock = sotckWithVarities
-                    await manager.save(product);
                 }
+
                 if (productData.productsComponent) {
                     for (const productComponent of productData.productsComponent) {
                         await this.prodcutComponentService.create(manager, { ...productComponent, productId: product.id });
@@ -235,8 +232,12 @@ export class ProductsService {
                 product.categories = data.categories.map(id => ({ id })) as any;
             }
 
-            let stock = 0
-            if (data.varities !== undefined && data.varities.length > 0) {
+            const stock = data.varities && data.varities?.length > 0 ? data.varities?.reduce(
+                (total, varity) => total + varity.stock,
+                0
+            ) : data.stock;
+
+            if (data.varities) {
                 for (const varity of data.varities) {
                     const varityInProduct = await manager.findOne(ProductVarity, {
                         where: {
@@ -246,7 +247,6 @@ export class ProductsService {
                     })
                     if (varityInProduct) {
                         if (varity.stock != 0) {
-                            stock += varity.stock;
                             varityInProduct.stock = varity.stock;
                         }
                         else {
@@ -255,7 +255,6 @@ export class ProductsService {
                         }
                         await manager.save(varityInProduct)
                     } else {
-                        stock += varity.stock;
                         const newVarityInProduct = manager.create(ProductVarity, {
                             stock: varity.stock,
                             product: { id: product.id },

@@ -36,7 +36,7 @@ export class CreateProductDto {
     @ApiPropertyOptional({ description: 'Variedades del producto', example: [{ name: 'Rojo', stock: 5, image: 'https://example.com/image1.jpg' }, { name: 'Azul', stock: 3, image: 'https://example.com/image2.jpg' }] })
     @IsOptional()
     @IsArray()
-    varities?: { name: string, stock: number, image?: string }[]
+    varities?: { id: string, productVarityId: string, stock: number, active: boolean }[]
 
     @ApiPropertyOptional({ description: 'Productos relacionados', example: [{ id: 'id-producto-relacionado-1' }, { id: 'id-producto-relacionado-2' }] })
     @IsOptional()

@@ -84,6 +84,18 @@ export class ProductsController {
     return res.status(200).json(product)
   }
 
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', description: 'Id del producto', required: true })
+  @ApiResponse({ status: 200, description: 'Producto completo con imágenes, categorías, variedades y componentes de la promoción' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado' })
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/:id')
+  async findOneForAdmin(@Param('id') id: string, @Res() res: Response) {
+    const product = await this.productsService.findForAdmin(id)
+    return res.status(200).json(product)
+  }
+
   @Get('byName/:name')
   async findOneProductByName(@Param('name') name: string, @Res() res: Response) {
     const product = await this.productsService.findByName(name)

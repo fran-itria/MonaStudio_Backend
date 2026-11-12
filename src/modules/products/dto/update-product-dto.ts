@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { CreateProductComponentDto } from "../../product-component/dto/create-product-component.dto";
 
 export class UpdateProductDto {
     @ApiProperty({ description: 'ID del producto a actualizar', example: 'uuid-producto-1' })
@@ -61,4 +62,18 @@ export class UpdateProductDto {
     @IsOptional()
     @IsArray()
     categories?: string[]
+
+    @ApiPropertyOptional({ description: 'Si el producto se muestra en el catálogo', example: true })
+    @IsOptional()
+    @IsBoolean()
+    active?: boolean
+
+    @ApiPropertyOptional({
+        type: CreateProductComponentDto,
+        isArray: true,
+        description: 'Componentes de la promoción/combo. Si se envía, reemplaza todos los componentes actuales (un array vacío deja de ser promoción).',
+    })
+    @IsOptional()
+    @IsArray()
+    productsComponent?: CreateProductComponentDto[]
 }

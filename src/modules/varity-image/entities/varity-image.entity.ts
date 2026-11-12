@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { ProductVarity } from "../../product-varity/entities/product-varity.entity";
 
 
@@ -18,4 +18,10 @@ export class ProductVarityImage {
     })
     @JoinColumn({ name: 'productVarityId' })
     iamge!: ProductVarityImage;
+
+    @CreateDateColumn()
+    created_at!: Date;
+
+    @UpdateDateColumn()
+    updated_at!: Date;
 }

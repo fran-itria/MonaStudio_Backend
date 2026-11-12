@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Product } from "../../products/entities/product.entity";
 import { Varity } from "../../varities/entities/varity.entity";
 import { ProductVarityImage } from "../../varity-image/entities/varity-image.entity";
@@ -44,4 +44,10 @@ export class ProductVarity {
 
     @OneToMany(() => ProductVarityImage, (productVarityImage) => productVarityImage.iamge)
     images!: ProductVarityImage[];
+
+    @CreateDateColumn()
+    created_at!: Date;
+
+    @UpdateDateColumn()
+    updated_at!: Date;
 }

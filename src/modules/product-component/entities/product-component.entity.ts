@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Product } from "../../products/entities/product.entity";
 import { ProductVarity } from "../../product-varity/entities/product-varity.entity";
 
@@ -48,4 +48,10 @@ export class ProductComponent {
     })
     @JoinColumn({ name: 'componentId' })
     component!: Product;
+
+    @CreateDateColumn()
+    created_at!: Date;
+
+    @UpdateDateColumn()
+    updated_at!: Date;
 }

@@ -1,10 +1,12 @@
 import {
   Check,
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Order } from '../../orders/entities/order.entity';
 import { Product } from '../../products/entities/product.entity';
@@ -42,4 +44,10 @@ export class OrderProduct {
   })
   @JoinColumn({ name: 'varityId' })
   varity!: Varity;
+
+  @CreateDateColumn()
+  created_at!: Date;
+
+  @UpdateDateColumn()
+  updated_at!: Date;
 }

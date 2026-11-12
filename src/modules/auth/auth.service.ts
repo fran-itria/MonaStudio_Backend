@@ -5,7 +5,7 @@ import { User } from '../users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-type AuthenticatedUser = Omit<User, 'contrasena'>;
+type AuthenticatedUser = Omit<User, 'contrasena' | 'created_at' | 'updated_at'>;
 type JwtUserPayload = Pick<User, 'id' | 'mail' | 'isAdmin'>;
 
 @Injectable()

@@ -1,10 +1,11 @@
 import { InjectRepository } from "@nestjs/typeorm";
-import { Order, OrderStatus, PaymentStatus } from "./entities/order.entity";
+import { Order, OrderSource, OrderStatus, PaymentStatus } from "./entities/order.entity";
 import { DataSource, EntityNotFoundError, Repository } from "typeorm";
 import Create_order_dto from "./dto/createOrder.dto";
 import { OrdersFilters, UpdateOrderStatusDto } from "./dto/admin-order.dto";
 import { ErrorsExceptions } from "../../Errors/custom-errors-exceptions";
 import reduceStock from "./services/reduce-stock";
+import restoreStock from "./services/restore-stock";
 import { PorductErrors } from "../../Errors/product.errors";
 import { VarityErrors } from "../../Errors/varity.errors";
 import createOrderErrors from "./services/create-order-errors";
@@ -32,7 +33,7 @@ export class OrderServices {
      */
     async create(
         info: Create_order_dto,
-        status?: { state: OrderStatus, paymentStatus: PaymentStatus }
+        status?: { state: OrderStatus, paymentStatus: PaymentStatus, source: OrderSource }
     ): Promise<Order | void> {
         const {
             client_name,
@@ -127,10 +128,14 @@ export class OrderServices {
 
         if (filters.state && (Object.values(OrderStatus) as string[]).includes(filters.state))
             query.andWhere('o.state = :state', { state: filters.state })
+        if (filters.excludeState && (Object.values(OrderStatus) as string[]).includes(filters.excludeState))
+            query.andWhere('o.state != :excludeState', { excludeState: filters.excludeState })
         if (filters.paymentStatus && (Object.values(PaymentStatus) as string[]).includes(filters.paymentStatus))
             query.andWhere('o.paymentStatus = :paymentStatus', { paymentStatus: filters.paymentStatus })
         if (filters.delivered)
             query.andWhere('o.delivered = :delivered', { delivered: filters.delivered })
+        if (filters.source && (Object.values(OrderSource) as string[]).includes(filters.source))
+            query.andWhere('o.source = :source', { source: filters.source })
 
         const search = filters.search?.trim().replace(/^#/, '')
         if (search) {
@@ -149,11 +154,24 @@ export class OrderServices {
     }
 
     async updateStatus(id: string, data: UpdateOrderStatusDto) {
-        const order = await this.orderRepository.findOneBy({ id })
-        if (!order)
-            throw ErrorsExceptions.notFound(OrderErrors.NOT_FOUND.errorCode, OrderErrors.NOT_FOUND.message)
-        Object.assign(order, data)
-        return await this.orderRepository.save(order)
+        return this.datasource.transaction(async (manager) => {
+            const order = await manager.findOneBy(Order, { id })
+            if (!order)
+                throw ErrorsExceptions.notFound(OrderErrors.NOT_FOUND.errorCode, OrderErrors.NOT_FOUND.message)
+
+            const changesState = data.state !== undefined && data.state !== order.state
+            if (changesState && order.state === OrderStatus.FAILED)
+                throw ErrorsExceptions.badRequest("ORDER_REJECTED", "Una orden rechazada no se puede reabrir: su stock ya se devolvió")
+            if (changesState && data.state === OrderStatus.FAILED) {
+                if (order.state === OrderStatus.DELIVERED)
+                    throw ErrorsExceptions.badRequest("ORDER_DELIVERED", "No se puede rechazar una orden que ya fue entregada")
+                // Rechazar devuelve el stock que se descontó al crearla
+                await restoreStock(manager, order.id)
+            }
+
+            Object.assign(order, data)
+            return await manager.save(order)
+        })
     }
 
     async createPreference(orderId: string) {

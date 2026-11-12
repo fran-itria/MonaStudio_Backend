@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiQuery, ApiResponse } fro
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import Create_order_dto from './dto/createOrder.dto';
 import { AdminCreateOrderDto, UpdateOrderStatusDto } from './dto/admin-order.dto';
-import { OrderStatus, PaymentStatus } from './entities/order.entity';
+import { OrderSource, OrderStatus, PaymentStatus } from './entities/order.entity';
 import type { Response } from 'express';
 import { OrderServices } from './orders.service';
 
@@ -17,9 +17,11 @@ export class OrdersController {
   @ApiQuery({ name: 'page', required: false, default: 1 })
   @ApiQuery({ name: 'limit', required: false, default: 20 })
   @ApiQuery({ name: 'state', required: false, enum: OrderStatus })
+  @ApiQuery({ name: 'excludeState', required: false, enum: OrderStatus, description: 'Excluye ese estado (ej: rejected)' })
   @ApiQuery({ name: 'paymentStatus', required: false, enum: PaymentStatus })
   @ApiQuery({ name: 'delivered', required: false, description: 'cadete | retiro en local | acordar con vendedor' })
   @ApiQuery({ name: 'archived', required: false, description: 'true para ver las archivadas (por defecto false)' })
+  @ApiQuery({ name: 'source', required: false, enum: OrderSource, description: 'web (tienda) o admin (cargada en el panel)' })
   @ApiQuery({ name: 'search', required: false, description: 'Nombre, apellido, teléfono o número de orden' })
   @ApiResponse({ status: 200, description: 'Lista paginada de órdenes con sus productos y variedades' })
   @ApiResponse({ status: 401, description: 'No autorizado' })
@@ -30,12 +32,14 @@ export class OrdersController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('state') state?: string,
+    @Query('excludeState') excludeState?: string,
     @Query('paymentStatus') paymentStatus?: string,
     @Query('delivered') delivered?: string,
     @Query('archived') archived?: string,
+    @Query('source') source?: string,
     @Query('search') search?: string,
   ) {
-    const orders = await this.orderServices.findAll({ page, limit, state, paymentStatus, delivered, archived, search })
+    const orders = await this.orderServices.findAll({ page, limit, state, excludeState, paymentStatus, delivered, archived, source, search })
     res.status(200).json(orders)
   }
 
@@ -50,13 +54,15 @@ export class OrdersController {
     const created = await this.orderServices.create(order, {
       state: OrderStatus.PAID,
       paymentStatus: paymentStatus ?? PaymentStatus.PENDING,
+      source: OrderSource.ADMIN,
     })
     res.status(201).json(created)
   }
 
   @ApiBearerAuth()
   @ApiBody({ type: UpdateOrderStatusDto })
-  @ApiResponse({ status: 200, description: 'Orden actualizada' })
+  @ApiResponse({ status: 200, description: 'Orden actualizada. Pasarla a "rejected" devuelve el stock (no se puede deshacer).' })
+  @ApiResponse({ status: 400, description: 'Reabrir una orden rechazada o rechazar una entregada' })
   @ApiResponse({ status: 401, description: 'No autorizado' })
   @ApiResponse({ status: 404, description: 'Orden no encontrada' })
   @UseGuards(JwtAuthGuard)

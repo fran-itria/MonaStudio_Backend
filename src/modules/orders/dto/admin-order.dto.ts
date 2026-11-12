@@ -32,8 +32,11 @@ export interface OrdersFilters {
     page?: number
     limit?: number
     state?: string
+    /** Excluye un estado (ej: rejected para ver solo las activas) */
+    excludeState?: string
     paymentStatus?: string
     delivered?: string
     archived?: string
+    source?: string
     search?: string
 }

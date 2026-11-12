@@ -8,6 +8,7 @@ import { PorductErrors } from "../../Errors/product.errors";
 import { VarityErrors } from "../../Errors/varity.errors";
 import createOrderErrors from "./services/create-order-errors";
 import calculatePrice from "./services/calculatePrice";
+import buildPreferenceItems from "./services/build-preference-items";
 import MercadoPagoConfig, { Preference } from "mercadopago"
 import { OrderProduct } from "../order-products/entities/order-product.entity";
 import { ProductVarity } from "../product-varity/entities/product-varity.entity";
@@ -111,32 +112,17 @@ export class OrderServices {
                     where: { id: orderId },
                     relations: {
                         orderProducts: {
-                            product: true
+                            product: {
+                                components: true
+                            }
                         }
                     }
                 }
             )
             if (!order)
                 throw ErrorsExceptions.notFound(OrderErrors.NOT_FOUND.errorCode, OrderErrors.NOT_FOUND.message)
-            const items: {
-                id: string,
-                title: string,
-                quantity: number,
-                unit_price: number
-            }[] = []
-            order.orderProducts.forEach(product => {
-                const findIndex = items.findIndex(item => item.id == product.productId)
-                if (findIndex == -1) {
-                    items.push({
-                        id: product.productId,
-                        title: product.product.nombre,
-                        quantity: Number(product.quantity),
-                        unit_price: Number(product.product.price)
-                    })
-                } else if (!items[findIndex].title.includes("2x")) {
-                    items[findIndex].quantity += product.quantity
-                }
-            })
+            // Mismo precio que al crear la orden (con descuento si existe); el total coincide con order.amount
+            const items = buildPreferenceItems(order)
             const client = new MercadoPagoConfig({ accessToken: process.env.ACCESS_TOKEN_PRODUCTION! });
             const preference = new Preference(client)
 

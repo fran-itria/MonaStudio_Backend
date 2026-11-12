@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product-dto';
 import { UpdateProductDto } from './dto/update-product-dto';
@@ -94,6 +94,19 @@ export class ProductsController {
   async findOneForAdmin(@Param('id') id: string, @Res() res: Response) {
     const product = await this.productsService.findForAdmin(id)
     return res.status(200).json(product)
+  }
+
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', description: 'Id del producto a eliminar', required: true })
+  @ApiResponse({ status: 200, description: 'Producto eliminado' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado' })
+  @ApiResponse({ status: 409, description: 'Tiene órdenes o forma parte de una promoción' })
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async remove(@Param('id', ParseUUIDPipe) id: string, @Res() res: Response) {
+    const result = await this.productsService.remove(id)
+    return res.status(200).json(result)
   }
 
   @Get('byName/:name')

@@ -2,7 +2,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entities/product.entity";
 import { Repository } from "typeorm/repository/Repository.js";
 import { CreateProductDto } from "./dto/create-product-dto";
-import { DataSource, FindOptionsWhere, QueryFailedError } from "typeorm";
+import { DataSource, FindOptionsWhere, In, QueryFailedError } from "typeorm";
+import { OrderProduct } from "../order-products/entities/order-product.entity";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { UpdateProductDto } from "./dto/update-product-dto";
 import { ProductVarity } from "../product-varity/entities/product-varity.entity";
@@ -136,6 +137,34 @@ export class ProductsService {
         })
         if (!product) throw ErrorsExceptions.notFound(PorductErrors.NOT_FOUND_PRODUCT.errorCode, PorductErrors.NOT_FOUND_PRODUCT.message)
         return product
+    }
+
+    /**
+     * Elimina un producto con sus imágenes, variedades y componentes.
+     * No se permite si aparece en órdenes (se perdería el historial) o si forma parte de una promoción.
+     */
+    async remove(id: string) {
+        return this.dataSource.transaction(async (manager) => {
+            const product = await manager.findOne(Product, { where: { id }, relations: { productVarities: true } })
+            if (!product) throw ErrorsExceptions.notFound(PorductErrors.NOT_FOUND_PRODUCT.errorCode, PorductErrors.NOT_FOUND_PRODUCT.message)
+
+            if (await manager.exists(OrderProduct, { where: { productId: id } }))
+                throw ErrorsExceptions.conflict("PRODUCT_HAS_ORDERS", `"${product.nombre}" tiene órdenes y no se puede eliminar. Podés ocultarlo de la tienda.`)
+
+            const usedIn = await manager.find(ProductComponent, { where: { componentId: id }, relations: { product: true } })
+            if (usedIn.length) {
+                const promos = [...new Set(usedIn.map(c => `"${c.product.nombre}"`))].join(", ")
+                throw ErrorsExceptions.conflict("PRODUCT_IN_PROMOTION", `"${product.nombre}" forma parte de la promoción ${promos}. Quitalo de la promoción antes de eliminarlo.`)
+            }
+
+            const productVarityIds = product.productVarities.map(pv => pv.id)
+            if (productVarityIds.length)
+                await manager.delete(ProductVarityImage, { productVarityId: In(productVarityIds) })
+            await manager.delete(ProductImage, { productId: id })
+            // product_varity, product_component (propios) y product_categories se borran en cascada
+            await manager.delete(Product, { id })
+            return { message: `Se eliminó "${product.nombre}"` }
+        })
     }
 
     async findByName(name: string) {

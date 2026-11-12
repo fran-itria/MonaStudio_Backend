@@ -1,6 +1,9 @@
-import { Body, Controller, Headers, Post, Query, Res } from '@nestjs/common';
-import { ApiBody, ApiExcludeEndpoint, ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Headers, Param, ParseUUIDPipe, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import Create_order_dto from './dto/createOrder.dto';
+import { AdminCreateOrderDto, UpdateOrderStatusDto } from './dto/admin-order.dto';
+import { OrderStatus, PaymentStatus } from './entities/order.entity';
 import type { Response } from 'express';
 import { OrderServices } from './orders.service';
 
@@ -9,6 +12,59 @@ export class OrdersController {
   constructor(
     private readonly orderServices: OrderServices
   ) { }
+
+  @ApiBearerAuth()
+  @ApiQuery({ name: 'page', required: false, default: 1 })
+  @ApiQuery({ name: 'limit', required: false, default: 20 })
+  @ApiQuery({ name: 'state', required: false, enum: OrderStatus })
+  @ApiQuery({ name: 'paymentStatus', required: false, enum: PaymentStatus })
+  @ApiQuery({ name: 'delivered', required: false, description: 'cadete | retiro en local | acordar con vendedor' })
+  @ApiQuery({ name: 'archived', required: false, description: 'true para ver las archivadas (por defecto false)' })
+  @ApiQuery({ name: 'search', required: false, description: 'Nombre, apellido, teléfono o número de orden' })
+  @ApiResponse({ status: 200, description: 'Lista paginada de órdenes con sus productos y variedades' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async findAll(
+    @Res() res: Response,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('state') state?: string,
+    @Query('paymentStatus') paymentStatus?: string,
+    @Query('delivered') delivered?: string,
+    @Query('archived') archived?: string,
+    @Query('search') search?: string,
+  ) {
+    const orders = await this.orderServices.findAll({ page, limit, state, paymentStatus, delivered, archived, search })
+    res.status(200).json(orders)
+  }
+
+  @ApiBearerAuth()
+  @ApiBody({ type: AdminCreateOrderDto })
+  @ApiResponse({ status: 201, description: 'Orden cargada desde el panel (queda aceptada)' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @UseGuards(JwtAuthGuard)
+  @Post('admin')
+  async createFromAdmin(@Res() res: Response, @Body() body: AdminCreateOrderDto) {
+    const { paymentStatus, ...order } = body
+    const created = await this.orderServices.create(order, {
+      state: OrderStatus.PAID,
+      paymentStatus: paymentStatus ?? PaymentStatus.PENDING,
+    })
+    res.status(201).json(created)
+  }
+
+  @ApiBearerAuth()
+  @ApiBody({ type: UpdateOrderStatusDto })
+  @ApiResponse({ status: 200, description: 'Orden actualizada' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 404, description: 'Orden no encontrada' })
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async updateStatus(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateOrderStatusDto, @Res() res: Response) {
+    const order = await this.orderServices.updateStatus(id, body)
+    res.status(200).json(order)
+  }
 
   @ApiBody({
     type: Create_order_dto

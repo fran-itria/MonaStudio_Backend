@@ -64,6 +64,12 @@ export class Order {
   @Column({ type: 'jsonb', nullable: true })
   shipping?: ShippingInfo | null;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  delivered!: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  archived!: boolean;
+
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order)
   orderProducts!: OrderProduct[];
 

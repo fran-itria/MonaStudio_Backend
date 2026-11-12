@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, Unique, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Product } from "../../products/entities/product.entity";
 import { ProductVarity } from "../../product-varity/entities/product-varity.entity";
 import { OrderProduct } from "../../order-products/entities/order-product.entity";
@@ -18,4 +18,10 @@ export class Varity {
 
     @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.varity)
     orderProducts!: OrderProduct[];
+
+    @CreateDateColumn()
+    created_at!: Date;
+
+    @UpdateDateColumn()
+    updated_at!: Date;
 }

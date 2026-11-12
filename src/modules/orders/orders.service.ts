@@ -1,13 +1,16 @@
 import { InjectRepository } from "@nestjs/typeorm";
-import { Order, OrderStatus, PaymentStatus } from "./entities/order.entity";
+import { Order, OrderSource, OrderStatus, PaymentStatus } from "./entities/order.entity";
 import { DataSource, EntityNotFoundError, Repository } from "typeorm";
 import Create_order_dto from "./dto/createOrder.dto";
+import { OrdersFilters, UpdateOrderStatusDto } from "./dto/admin-order.dto";
 import { ErrorsExceptions } from "../../Errors/custom-errors-exceptions";
 import reduceStock from "./services/reduce-stock";
+import restoreStock from "./services/restore-stock";
 import { PorductErrors } from "../../Errors/product.errors";
 import { VarityErrors } from "../../Errors/varity.errors";
 import createOrderErrors from "./services/create-order-errors";
 import calculatePrice from "./services/calculatePrice";
+import buildPreferenceItems from "./services/build-preference-items";
 import MercadoPagoConfig, { Preference } from "mercadopago"
 import { OrderProduct } from "../order-products/entities/order-product.entity";
 import { ProductVarity } from "../product-varity/entities/product-varity.entity";
@@ -25,7 +28,13 @@ export class OrderServices {
         private readonly datasource: DataSource
     ) { }
 
-    async create(info: Create_order_dto): Promise<Order | void> {
+    /**
+     * @param status estado inicial; solo lo usa la carga desde el panel (la tienda siempre crea pendiente).
+     */
+    async create(
+        info: Create_order_dto,
+        status?: { state: OrderStatus, paymentStatus: PaymentStatus, source: OrderSource }
+    ): Promise<Order | void> {
         const {
             client_name,
             client_surname,
@@ -53,8 +62,10 @@ export class OrderServices {
                     amount: price,
                     coment,
                     shipping: shippingData,
+                    delivered,
                     phone,
-                    paymentMethod
+                    paymentMethod,
+                    ...status
                 })
                 await manager.save(order)
 
@@ -104,6 +115,65 @@ export class OrderServices {
         }
     }
 
+    async findAll(filters: OrdersFilters = {}) {
+        const page = Math.max(Number(filters.page) || 1, 1)
+        const take = Math.min(Math.max(Number(filters.limit) || 20, 1), 100)
+        const query = this.orderRepository
+            .createQueryBuilder('o')
+            .leftJoinAndSelect('o.orderProducts', 'op')
+            .leftJoinAndSelect('op.product', 'product')
+            .leftJoinAndSelect('product.components', 'components')
+            .leftJoinAndSelect('op.varity', 'varity')
+            .where('o.archived = :archived', { archived: filters.archived === 'true' })
+
+        if (filters.state && (Object.values(OrderStatus) as string[]).includes(filters.state))
+            query.andWhere('o.state = :state', { state: filters.state })
+        if (filters.excludeState && (Object.values(OrderStatus) as string[]).includes(filters.excludeState))
+            query.andWhere('o.state != :excludeState', { excludeState: filters.excludeState })
+        if (filters.paymentStatus && (Object.values(PaymentStatus) as string[]).includes(filters.paymentStatus))
+            query.andWhere('o.paymentStatus = :paymentStatus', { paymentStatus: filters.paymentStatus })
+        if (filters.delivered)
+            query.andWhere('o.delivered = :delivered', { delivered: filters.delivered })
+        if (filters.source && (Object.values(OrderSource) as string[]).includes(filters.source))
+            query.andWhere('o.source = :source', { source: filters.source })
+
+        const search = filters.search?.trim().replace(/^#/, '')
+        if (search) {
+            query.andWhere(
+                '(o.client_name ILIKE :like OR o.client_surname ILIKE :like OR o.phone ILIKE :like OR CAST(o.order_number AS text) = :exact)',
+                { like: `%${search}%`, exact: search }
+            )
+        }
+
+        const [orders, total] = await query
+            .orderBy('o.created_at', 'DESC')
+            .skip((page - 1) * take)
+            .take(take)
+            .getManyAndCount()
+        return { orders, total, page, limit: take }
+    }
+
+    async updateStatus(id: string, data: UpdateOrderStatusDto) {
+        return this.datasource.transaction(async (manager) => {
+            const order = await manager.findOneBy(Order, { id })
+            if (!order)
+                throw ErrorsExceptions.notFound(OrderErrors.NOT_FOUND.errorCode, OrderErrors.NOT_FOUND.message)
+
+            const changesState = data.state !== undefined && data.state !== order.state
+            if (changesState && order.state === OrderStatus.FAILED)
+                throw ErrorsExceptions.badRequest("ORDER_REJECTED", "Una orden rechazada no se puede reabrir: su stock ya se devolvió")
+            if (changesState && data.state === OrderStatus.FAILED) {
+                if (order.state === OrderStatus.DELIVERED)
+                    throw ErrorsExceptions.badRequest("ORDER_DELIVERED", "No se puede rechazar una orden que ya fue entregada")
+                // Rechazar devuelve el stock que se descontó al crearla
+                await restoreStock(manager, order.id)
+            }
+
+            Object.assign(order, data)
+            return await manager.save(order)
+        })
+    }
+
     async createPreference(orderId: string) {
         try {
             const order = await this.orderRepository.findOne(
@@ -111,32 +181,17 @@ export class OrderServices {
                     where: { id: orderId },
                     relations: {
                         orderProducts: {
-                            product: true
+                            product: {
+                                components: true
+                            }
                         }
                     }
                 }
             )
             if (!order)
                 throw ErrorsExceptions.notFound(OrderErrors.NOT_FOUND.errorCode, OrderErrors.NOT_FOUND.message)
-            const items: {
-                id: string,
-                title: string,
-                quantity: number,
-                unit_price: number
-            }[] = []
-            order.orderProducts.forEach(product => {
-                const findIndex = items.findIndex(item => item.id == product.productId)
-                if (findIndex == -1) {
-                    items.push({
-                        id: product.productId,
-                        title: product.product.nombre,
-                        quantity: Number(product.quantity),
-                        unit_price: Number(product.product.price)
-                    })
-                } else if (!items[findIndex].title.includes("2x")) {
-                    items[findIndex].quantity += product.quantity
-                }
-            })
+            // Mismo precio que al crear la orden (con descuento si existe); el total coincide con order.amount
+            const items = buildPreferenceItems(order)
             const client = new MercadoPagoConfig({ accessToken: process.env.ACCESS_TOKEN_PRODUCTION! });
             const preference = new Preference(client)
 

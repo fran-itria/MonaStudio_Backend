@@ -21,6 +21,11 @@ export enum OrderStatus {
   DELIVERED = 'delivered',
 }
 
+export enum OrderSource {
+  WEB = 'web',
+  ADMIN = 'admin',
+}
+
 interface ShippingInfo {
   street: string,
   number: number,
@@ -63,6 +68,16 @@ export class Order {
 
   @Column({ type: 'jsonb', nullable: true })
   shipping?: ShippingInfo | null;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  delivered!: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  archived!: boolean;
+
+  /** Dónde se creó: la tienda web o el panel de administración */
+  @Column({ type: 'varchar', length: 20, default: OrderSource.WEB })
+  source!: OrderSource;
 
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order)
   orderProducts!: OrderProduct[];

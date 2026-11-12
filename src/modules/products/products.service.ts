@@ -12,7 +12,7 @@ import { ProductImage } from "../product-image/entities/product-image.entity";
 import { ProductVarityImage } from "../varity-image/entities/varity-image.entity";
 import { Varity } from "../varities/entities/varity.entity";
 import { ProductComponentService } from "../product-component/product-component.service";
-import { SelectionMode } from "../product-component/entities/product-component.entity";
+import { ProductComponent, SelectionMode } from "../product-component/entities/product-component.entity";
 
 export class ProductsService {
     constructor(
@@ -123,6 +123,21 @@ export class ProductsService {
         }
         return productReturn
     }
+    /** Producto completo para el panel de administración (incluye componentes de la promoción). */
+    async findForAdmin(id: string) {
+        const product = await this.productRepository.findOne({
+            where: { id },
+            relations: {
+                images: true,
+                categories: true,
+                productVarities: { varity: true },
+                components: true
+            }
+        })
+        if (!product) throw ErrorsExceptions.notFound(PorductErrors.NOT_FOUND_PRODUCT.errorCode, PorductErrors.NOT_FOUND_PRODUCT.message)
+        return product
+    }
+
     async findByName(name: string) {
         const product = await this.productRepository.find({
             where: {
@@ -220,7 +235,7 @@ export class ProductsService {
 
     async update(productData: UpdateProductDto): Promise<Product | void> {
         return this.dataSource.transaction(async (manager) => {
-            const { id, ...data } = productData;
+            const { id, productsComponent, ...data } = productData;
             const product = await manager.findOne(Product, {
                 where: {
                     id
@@ -246,14 +261,11 @@ export class ProductsService {
                         }
                     })
                     if (varityInProduct) {
-                        if (varity.stock != 0) {
-                            varityInProduct.stock = varity.stock;
-                        }
-                        else {
-                            varityInProduct.stock = varity.stock;
-                            varityInProduct.active = false
-                        }
+                        varityInProduct.stock = varity.stock;
+                        // Sin stock se oculta, y si se repone vuelve a estar disponible
+                        varityInProduct.active = varity.stock > 0
                         await manager.save(varityInProduct)
+                        varity.productVarityId = varityInProduct.id
                     } else {
                         const newVarityInProduct = manager.create(ProductVarity, {
                             stock: varity.stock,
@@ -274,12 +286,13 @@ export class ProductsService {
                     }
                 })
 
-                if (data.varities?.length)
-                    for (const varityDb of productsVarities) {
-                        const varityNotFound = data.varities.find(varity => varity.productVarityId == varityDb.id)
-                        if (!varityNotFound)
-                            await manager.delete(ProductVarity, varityDb.id)
-                    }
+                // La lista enviada es la lista completa: lo que no vino se elimina (incluso si viene vacía)
+                const sentVarities = data.varities
+                for (const varityDb of productsVarities) {
+                    const varityNotFound = sentVarities.find(varity => varity.productVarityId == varityDb.id)
+                    if (!varityNotFound)
+                        await manager.delete(ProductVarity, varityDb.id)
+                }
             }
 
             if (data.image?.length) {
@@ -307,7 +320,16 @@ export class ProductsService {
                 }
             }
 
-            Object.assign(product, data)
+            if (productsComponent !== undefined) {
+                await manager.delete(ProductComponent, { productId: product.id })
+                for (const productComponent of productsComponent) {
+                    await this.prodcutComponentService.create(manager, { ...productComponent, productId: product.id });
+                }
+            }
+
+            // categories, varities e image ya se procesaron arriba como relaciones
+            const { categories: _categories, varities: _varities, image: _image, ...fields } = data
+            Object.assign(product, fields)
             product.stock = stock
             return await manager.save(product);
         });
